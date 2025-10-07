@@ -36,25 +36,25 @@ void main() async {
   await GetStorage.init();
   if (kIsWeb) {
     // Chạy giao diện web riêng (vì web không có windowManager)
-    runApp(
-      LayoutBuilder(
-        builder: (context, constraints) {
-          if (constraints.maxWidth < 800 || constraints.maxHeight < 600) {
-            return const MaterialApp(
-              home: Scaffold(
-                body: Center(
-                  child: Text(
-                    'Vui lòng mở rộng cửa sổ để xem ứng dụng!',
-                    style: TextStyle(fontSize: 20, color: Colors.red),
-                  ),
-                ),
-              ),
-            );
-          }
-          return const TestApp();
-        },
-      ),
-    );
+    // runApp(
+    //   LayoutBuilder(
+    //     builder: (context, constraints) {
+    //       if (constraints.maxWidth < 200 || constraints.maxHeight < 100) {
+    //         return const MaterialApp(
+    //           home: Scaffold(
+    //             body: Center(
+    //               child: Text(
+    //                 'Vui lòng mở rộng cửa sổ để xem ứng dụng!',
+    //                 style: TextStyle(fontSize: 20, color: Colors.red),
+    //               ),
+    //             ),
+    //           ),
+    //         );
+    //       }
+    //       return const TestApp();
+    //     },
+    //   ),
+    // );
   } else if (Platform.isWindows) {
     await windowManager.ensureInitialized();
     WindowOptions options = const WindowOptions(
