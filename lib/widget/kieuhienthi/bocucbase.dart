@@ -473,11 +473,13 @@ class _BocucBaseState extends State<BocucBase> {
           streamCambien: streamAddSensor.stream,
           streamControllerDiemcat: streamDiemcat,
           streamControllerXoaCambien: streamXoaCambien,
+          listDeviceSelected: listDeviceSelected,
         );
       case 2:
         return ManhinhSo(
           stream: widget.stream,
           streamAddSensor: streamAddSensor.stream,
+          listDeviceSelected: listDeviceSelected,
         );
       case 3:
         return ManhinhBang(
@@ -486,11 +488,13 @@ class _BocucBaseState extends State<BocucBase> {
           streamCambien: streamAddSensor.stream,
           streamControllerDiemcat: streamDiemcat,
           streamControllerXoaCambien: streamXoaCambien,
+          listDeviceSelected: listDeviceSelected,
         );
       case 4:
         return ManhinhDongho(
           streamDulieu: widget.stream,
           streamCambien: streamAddSensor.stream,
+          listDeviceSelected: listDeviceSelected,
         );
       default:
         return Container(color: Colors.white);

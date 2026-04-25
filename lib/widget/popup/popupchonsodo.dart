@@ -12,7 +12,7 @@ class PopupChonsodo extends StatelessWidget {
   final List<SodoCambien> sodocambienList;
   final VoidCallback onClose;
   final Function(CambienHienthi) onCambienSelected;
-  final List<dynamic> listDeviceSelected;
+  final List<dynamic> listDeviceSelected; 
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -47,16 +47,13 @@ class PopupChonsodo extends StatelessWidget {
               ),
             ),
           ),
-          // Sử dụng Expanded hoặc SingleChildScrollView ở đây
-          SingleChildScrollView(
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height * 0.27, // 👈 Giới hạn chiều cao để cuộn được
-              child: ListviewSodo(
-                sodocambienList: sodocambienList,
-                listDeviceSelected: listDeviceSelected,
-                onClose: onClose,
-                onCambienSelected: onCambienSelected,
-              ),
+          // Sử dụng Flexible để danh sách tự điền vào không gian còn lại (tránh overflow)
+          Flexible(
+            child: ListviewSodo(
+              sodocambienList: sodocambienList,
+              listDeviceSelected: listDeviceSelected,
+              onClose: onClose,
+              onCambienSelected: onCambienSelected,
             ),
           ),
         ],
@@ -292,17 +289,19 @@ class _ChonsodoState extends State<_Chonsodo> {
                 children: [
                   Row(
                     children: [
-                      AutoSizeText(
-                        tencambien,
-                        maxLines: 1,
-                        minFontSize: 10,
-                        maxFontSize: 15,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                      Expanded(
+                        child: AutoSizeText(
+                          tencambien,
+                          maxLines: 1,
+                          minFontSize: 10,
+                          maxFontSize: 15,
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
@@ -318,20 +317,22 @@ class _ChonsodoState extends State<_Chonsodo> {
               ),
             ),
 
-            // Spacer + Nút đơn vị
-            const Spacer(),
+            // Nút Icon
             Padding(
-              padding: EdgeInsets.only(right: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Icon(
-                isSelected ?  Icons.close : Icons.check,
-                color: isSelected ?  Colors.red : Colors.green,
+                isSelected ? Icons.close : Icons.check,
+                color: isSelected ? Colors.red : Colors.green,
                 size: 20,
               ),
             ),
+            
+            // Nút đơn vị
             Padding(
               padding: const EdgeInsets.only(right: 8),
               child: SizedBox(
-                width: MediaQuery.of(context).size.width * 0.05,
+                // Đặt width tĩnh tối thiểu thay vì MediaQuery tĩnh cố định theo % màn hình có thể gây lỗi khi popup quá hẹp
+                width: 50,
                 height: 40,
                 child: ElevatedButton(
                   key: _buttonKey,
@@ -351,9 +352,6 @@ class _ChonsodoState extends State<_Chonsodo> {
                       style: const TextStyle(fontSize: 13),
                       maxLines: 1,
                       textAlign: TextAlign.center,
-                      minFontSize: 8,
-                      maxFontSize: 13,
-                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),

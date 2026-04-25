@@ -8,14 +8,22 @@ import '../../Model/dulieucambien.dart';
 import '../../ultis/listcambien.dart' as globals;
 
 class ManhinhBang extends StatelessWidget {
-  const ManhinhBang(
-      {super.key, required this.stream, required this.streamPhantich, required this.streamCambien, required this.streamControllerDiemcat, required this.streamControllerXoaCambien});
+  const ManhinhBang({
+    super.key,
+    required this.stream,
+    required this.streamPhantich,
+    required this.streamCambien,
+    required this.streamControllerDiemcat,
+    required this.streamControllerXoaCambien,
+    required this.listDeviceSelected,
+  });
 
   final Stream<DulieuCB> stream;
   final Stream<int> streamPhantich;
   final Stream<CambienHienthi> streamCambien;
-  final StreamController <Map<String, Map<String, dynamic>>> streamControllerDiemcat;
-  final StreamController <bool> streamControllerXoaCambien;
+  final StreamController<Map<String, Map<String, dynamic>>> streamControllerDiemcat;
+  final StreamController<bool> streamControllerXoaCambien;
+  final List<dynamic> listDeviceSelected;
 
 
   @override
@@ -27,24 +35,29 @@ class ManhinhBang extends StatelessWidget {
         streamPhantich: streamPhantich,
         streamControllerDiemcat: streamControllerDiemcat,
         streamControllerXoaCambien: streamControllerXoaCambien,
+        listDeviceSelected: listDeviceSelected,
       ),
     );
   }
 }
 
 class TableData extends StatefulWidget {
-  const TableData({super.key,
+  const TableData({
+    super.key,
     required this.parent,
     required this.stream,
     required this.streamPhantich,
     required this.streamControllerDiemcat,
-    required this.streamControllerXoaCambien });
+    required this.streamControllerXoaCambien,
+    required this.listDeviceSelected,
+  });
 
   final ManhinhBang parent;
   final Stream<DulieuCB> stream;
   final Stream<int> streamPhantich;
-  final StreamController <Map<String, Map<String, dynamic>>> streamControllerDiemcat;
-  final StreamController <bool> streamControllerXoaCambien;
+  final StreamController<Map<String, Map<String, dynamic>>> streamControllerDiemcat;
+  final StreamController<bool> streamControllerXoaCambien;
+  final List<dynamic> listDeviceSelected;
 
   @override
   State<TableData> createState() => _TableDataState();
@@ -302,7 +315,13 @@ class _TableDataState extends State<TableData> {
 
   @override
   void initState() {
-    listCambienbang = [];
+    listCambienbang = widget.listDeviceSelected.whereType<CambienHienthi>().toList();
+    for (var cambien in listCambienbang) {
+      if (!sensorData.containsKey(cambien.id)) {
+        sensorData[cambien.id] = [];
+      }
+    }
+
     _subscriptionCambien = widget.parent.streamCambien.listen((CambienHienthi cambien) {
       _addCambien(cambien);
     });
@@ -311,10 +330,9 @@ class _TableDataState extends State<TableData> {
         final sensorId = dulieu.id;
         final values = dulieu.giaTri.map((e) => e).toList();
 
-        // Nếu cảm biến chưa có, khởi tạo danh sách rỗng
+        // Nếu cảm biến chưa được chọn, bỏ qua
         if (!sensorData.containsKey(sensorId)) {
           return;
-          sensorData[sensorId] = [];
         }
 
         // Thêm từng giá trị vào danh sách của cảm biến

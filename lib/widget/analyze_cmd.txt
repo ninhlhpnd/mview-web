@@ -1,0 +1,295 @@
+Analyzing lib...                                                
+
+   info - The import of 'dart:typed_data' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart' - ..\main.dart:3:8 - unnecessary_import
+warning - Unused import: 'widget/dialog/bluetooth_dialog.dart' - ..\main.dart:35:8 - unused_import
+warning - The value of the local variable 'currentHistoryy' isn't used - ..\main.dart:66:30 - unused_local_variable
+   info - Use 'const' with the constructor to improve performance - ..\main.dart:82:13 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - ..\main.dart:83:16 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - ..\main.dart:84:17 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - ..\main.dart:154:18 - prefer_const_constructors
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - ..\main.dart:155:23 - prefer_const_literals_to_create_immutables
+   info - Don't invoke 'print' in production code - ..\main.dart:183:7 - avoid_print
+   info - Use 'const' with the constructor to improve performance - ..\main.dart:198:18 - prefer_const_constructors
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - ..\main.dart:199:23 - prefer_const_literals_to_create_immutables
+   info - The variable name 'HomeButton' isn't a lowerCamelCase identifier - ..\main.dart:250:8 - non_constant_identifier_names
+   info - The variable name 'DangPhatTrien' isn't a lowerCamelCase identifier - ..\main.dart:255:8 - non_constant_identifier_names
+   info - The variable name 'CongcuButton' isn't a lowerCamelCase identifier - ..\main.dart:296:8 - non_constant_identifier_names
+warning - This method overrides a method annotated as '@mustCallSuper' in 'State', but doesn't invoke the overridden method - ..\main.dart:299:8 - must_call_super
+warning - The value of the local variable 'first' isn't used - ..\main.dart:371:10 - unused_local_variable
+   info - Don't invoke 'print' in production code - ..\main.dart:557:15 - avoid_print
+   info - Don't invoke 'print' in production code - ..\main.dart:595:7 - avoid_print
+   info - Don't invoke 'print' in production code - ..\main.dart:603:9 - avoid_print
+   info - Don't invoke 'print' in production code - ..\main.dart:637:7 - avoid_print
+   info - Don't invoke 'print' in production code - ..\main.dart:648:9 - avoid_print
+   info - Don't invoke 'print' in production code - ..\main.dart:680:7 - avoid_print
+   info - Don't invoke 'print' in production code - ..\main.dart:691:9 - avoid_print
+   info - Don't invoke 'print' in production code - ..\main.dart:729:9 - avoid_print
+   info - Don't invoke 'print' in production code - ..\main.dart:754:7 - avoid_print
+   info - Don't invoke 'print' in production code - ..\main.dart:795:7 - avoid_print
+   info - Don't invoke 'print' in production code - ..\main.dart:816:7 - avoid_print
+   info - Don't invoke 'print' in production code - ..\main.dart:822:7 - avoid_print
+   info - Don't invoke 'print' in production code - ..\main.dart:850:5 - avoid_print
+warning - The method doesn't override an inherited method - ..\main.dart:864:8 - override_on_non_overriding_member
+   info - Don't invoke 'print' in production code - ..\main.dart:868:7 - avoid_print
+   info - Don't invoke 'print' in production code - ..\main.dart:905:13 - avoid_print
+   info - The variable name 'HandleBocucSelected' isn't a lowerCamelCase identifier - ..\main.dart:923:8 - non_constant_identifier_names
+   info - Unnecessary instance of 'Container' - ..\main.dart:1032:17 - avoid_unnecessary_containers
+   info - Unnecessary instance of 'Container' - ..\main.dart:1040:17 - avoid_unnecessary_containers
+   info - Unnecessary instance of 'Container' - ..\main.dart:1048:17 - avoid_unnecessary_containers
+   info - Invalid use of a private type in a public API - ..\main.dart:1077:3 - library_private_types_in_public_api
+warning - This method overrides a method annotated as '@mustCallSuper' in 'State', but doesn't invoke the overridden method - ..\main.dart:1086:8 - must_call_super
+warning - The value of the local variable 'renderBox' isn't used - ..\main.dart:1103:15 - unused_local_variable
+   info - Use a 'SizedBox' to add whitespace to a layout - ..\main.dart:1111:20 - sized_box_for_whitespace
+   info - The variable name '_StartPressFunction' isn't a lowerCamelCase identifier - ..\main.dart:1219:8 - non_constant_identifier_names
+   info - Don't invoke 'print' in production code - ..\main.dart:1317:7 - avoid_print
+   info - Don't invoke 'print' in production code - ..\main.dart:1326:7 - avoid_print
+warning - Unused import: 'package:mview/Model/dulieucambien.dart' - ..\manager\connection_manager.dart:5:8 - unused_import
+warning - The value of the field '_context' isn't used - ..\manager\connection_manager.dart:20:17 - unused_field
+   info - The import of 'package:flutter/cupertino.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - ..\ultis\listcambien.dart:2:8 - unnecessary_import
+warning - Unused import: '../Model/cambienhienthi.dart' - ..\ultis\listcambien.dart:7:8 - unused_import
+   info - The variable name 'SodoCambienList' isn't a lowerCamelCase identifier - ..\ultis\listcambien.dart:235:19 - non_constant_identifier_names
+   info - The variable name 'SodoCambienListHistory' isn't a lowerCamelCase identifier - ..\ultis\listcambien.dart:236:19 - non_constant_identifier_names
+   info - Unnecessary 'late' modifier - ..\ultis\listcambien.dart:278:1 - unnecessary_late
+   info - Unnecessary 'late' modifier - ..\ultis\listcambien.dart:292:1 - unnecessary_late
+warning - Unused import: 'package:get_storage/get_storage.dart' - dialog\bluetooth_dialog.dart:6:8 - unused_import
+   info - The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/foundation.dart' - dialog\bluetooth_dialog.dart:9:8 - unnecessary_import
+   info - Invalid use of a private type in a public API - dialog\bluetooth_dialog.dart:21:3 - library_private_types_in_public_api
+warning - The value of the local variable 'locationGranted' isn't used - dialog\bluetooth_dialog.dart:73:12 - unused_local_variable
+   info - Don't use 'BuildContext's across async gaps - dialog\bluetooth_dialog.dart:84:39 - use_build_context_synchronously
+   info - Don't use 'BuildContext's across async gaps - dialog\bluetooth_dialog.dart:100:39 - use_build_context_synchronously
+   info - Use 'const' with the constructor to improve performance - dialog\bluetooth_dialog.dart:121:67 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\bluetooth_dialog.dart:124:22 - prefer_const_constructors
+warning - The value of the local variable 'mtu' isn't used - dialog\bluetooth_dialog.dart:330:11 - unused_local_variable
+   info - Use 'const' with the constructor to improve performance - dialog\bluetooth_dialog.dart:382:16 - prefer_const_constructors
+   info - Invalid use of a private type in a public API - dialog\config_diaglog.dart:11:3 - library_private_types_in_public_api
+warning - The declaration '_buildDropdown' isn't referenced - dialog\config_diaglog.dart:59:10 - unused_element
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:139:64 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:162:67 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:183:67 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:205:42 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:206:47 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:208:45 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:209:53 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:223:69 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:234:29 - prefer_const_constructors
+warning - Dead code - dialog\config_diaglog.dart:247:5 - dead_code
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:302:62 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:325:65 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:346:65 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:368:40 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:369:45 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:371:43 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:372:51 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:386:67 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\config_diaglog.dart:397:27 - prefer_const_constructors
+warning - Unused import: 'dart:io' - dialog\connection_dialog.dart:1:8 - unused_import
+warning - Unused import: 'package:universal_ble/universal_ble.dart' - dialog\connection_dialog.dart:4:8 - unused_import
+   info - Use 'const' with the constructor to improve performance - dialog\connection_dialog.dart:97:21 - prefer_const_constructors
+   info - The imported package 'intl' isn't a dependency of the importing package - dialog\history_diaglog.dart:10:8 - depend_on_referenced_packages
+warning - Unused import: 'package:intl/intl.dart' - dialog\history_diaglog.dart:10:8 - unused_import
+   info - Invalid use of a private type in a public API - dialog\history_diaglog.dart:21:3 - library_private_types_in_public_api
+   info - Use 'const' with the constructor to improve performance - dialog\history_diaglog.dart:37:18 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\history_diaglog.dart:40:15 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\history_diaglog.dart:50:22 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\history_diaglog.dart:55:22 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\history_diaglog.dart:68:18 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\history_diaglog.dart:71:25 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\history_diaglog.dart:76:22 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - dialog\history_diaglog.dart:83:22 - prefer_const_constructors
+warning - The value of the local variable 'fileNameController' isn't used - dialog\history_diaglog.dart:97:33 - unused_local_variable
+   info - Don't use 'BuildContext's across async gaps - dialog\history_diaglog.dart:177:28 - use_build_context_synchronously
+   info - Use 'const' with the constructor to improve performance - dialog\history_diaglog.dart:180:21 - prefer_const_constructors
+   info - Don't invoke 'print' in production code - dialog\history_diaglog.dart:372:31 - avoid_print
+warning - Unused import: 'package:universal_ble/universal_ble.dart' - kieuhienthi\bocucbase.dart:4:8 - unused_import
+warning - Unused import: 'package:font_awesome_flutter/font_awesome_flutter.dart' - kieuhienthi\bocucbase.dart:5:8 - unused_import
+warning - Unused import: 'package:mview/Model/cambien.dart' - kieuhienthi\bocucbase.dart:6:8 - unused_import
+   info - Don't invoke 'print' in production code - kieuhienthi\bocucbase.dart:96:27 - avoid_print
+   info - Don't invoke 'print' in production code - kieuhienthi\bocucbase.dart:137:35 - avoid_print
+   info - Don't invoke 'print' in production code - kieuhienthi\bocucbase.dart:182:35 - avoid_print
+   info - Don't invoke 'print' in production code - kieuhienthi\bocucbase.dart:233:35 - avoid_print
+   info - Don't invoke 'print' in production code - kieuhienthi\bocucbase.dart:235:35 - avoid_print
+   info - Don't invoke 'print' in production code - kieuhienthi\bocucbase.dart:268:35 - avoid_print
+   info - Don't invoke 'print' in production code - kieuhienthi\bocucbase.dart:301:35 - avoid_print
+   info - Use 'isEmpty' instead of 'length' to test whether the collection is empty - kieuhienthi\bocucbase.dart:306:39 - prefer_is_empty
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - kieuhienthi\bocucbase.dart:350:33 - deprecated_member_use
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - kieuhienthi\bocucbase.dart:396:44 - prefer_const_literals_to_create_immutables
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\bocucbase.dart:397:35 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\bocucbase.dart:400:45 - prefer_const_constructors
+   info - Unnecessary use of 'toList' in a spread - kieuhienthi\bocucbase.dart:424:28 - unnecessary_to_list_in_spreads
+warning - This method overrides a method annotated as '@mustCallSuper' in 'State', but doesn't invoke the overridden method - kieuhienthi\bocucbase.dart:505:8 - must_call_super
+   info - Invalid use of a private type in a public API - kieuhienthi\bocucbase.dart:611:47 - library_private_types_in_public_api
+   info - Invalid use of a private type in a public API - kieuhienthi\bocucbase.dart:613:9 - library_private_types_in_public_api
+   info - Invalid use of a private type in a public API - kieuhienthi\bocucbase.dart:617:3 - library_private_types_in_public_api
+warning - This method overrides a method annotated as '@mustCallSuper' in 'State', but doesn't invoke the overridden method - kieuhienthi\bocucbase.dart:625:8 - must_call_super
+warning - The value of the local variable 'size' isn't used - kieuhienthi\bocucbase.dart:641:9 - unused_local_variable
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\bocucbase.dart:655:30 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\bocucbase.dart:659:29 - prefer_const_constructors
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - kieuhienthi\bocucbase.dart:661:30 - prefer_const_literals_to_create_immutables
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\bocucbase.dart:662:21 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\bocucbase.dart:666:31 - prefer_const_constructors
+   info - Invalid use of a private type in a public API - kieuhienthi\bocucbase.dart:704:33 - library_private_types_in_public_api
+   info - Invalid use of a private type in a public API - kieuhienthi\bocucbase.dart:706:9 - library_private_types_in_public_api
+warning - The value of the local variable 'size' isn't used - kieuhienthi\bocucbase.dart:735:9 - unused_local_variable
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - kieuhienthi\bocucbase.dart:754:30 - prefer_const_literals_to_create_immutables
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\bocucbase.dart:755:21 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\bocucbase.dart:759:31 - prefer_const_constructors
+   info - Invalid use of a private type in a public API - kieuhienthi\bocucbase.dart:799:33 - library_private_types_in_public_api
+   info - Invalid use of a private type in a public API - kieuhienthi\bocucbase.dart:801:9 - library_private_types_in_public_api
+warning - The value of the local variable 'size' isn't used - kieuhienthi\bocucbase.dart:831:9 - unused_local_variable
+   info - Don't invoke 'print' in production code - kieuhienthi\cacbaistem\bdk_helper.dart:21:5 - avoid_print
+   info - Don't invoke 'print' in production code - kieuhienthi\cacbaistem\bdk_helper.dart:25:5 - avoid_print
+warning - Unused import: 'package:sleek_circular_slider/sleek_circular_slider.dart' - kieuhienthi\cacbaistem\lenmensuachua.dart:4:8 - unused_import
+warning - Unused import: '../../../ultis/listcambien.dart' - kieuhienthi\cacbaistem\lenmensuachua.dart:8:8 - unused_import
+   info - The prefix 'sendData' isn't a lower_case_with_underscores identifier - kieuhienthi\cacbaistem\lenmensuachua.dart:10:29 - library_prefixes
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\cacbaistem\lenmensuachua.dart:42:18 - prefer_const_constructors
+   info - Don't invoke 'print' in production code - kieuhienthi\cacbaistem\lenmensuachua.dart:74:5 - avoid_print
+   info - Don't invoke 'print' in production code - kieuhienthi\cacbaistem\lenmensuachua.dart:84:7 - avoid_print
+   info - The prefix 'sendData' isn't a lower_case_with_underscores identifier - kieuhienthi\cacbaistem\nhakinhthongminh.dart:9:29 - library_prefixes
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - kieuhienthi\cacbaistem\nhakinhthongminh.dart:259:35 - deprecated_member_use
+   info - The prefix 'sendData' isn't a lower_case_with_underscores identifier - kieuhienthi\cacbaistem\stemlosaynongsan.dart:6:29 - library_prefixes
+warning - The operand can't be 'null', so the condition is always 'true' - kieuhienthi\cacbaistem\stemlosaynongsan.dart:35:29 - unnecessary_null_comparison
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\cacbaistem\stemlosaynongsan.dart:66:20 - prefer_const_constructors
+   info - The prefix 'sendData' isn't a lower_case_with_underscores identifier - kieuhienthi\cacbaistem\stemthuycanh.dart:8:29 - library_prefixes
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - kieuhienthi\cacbaistem\stemthuycanh.dart:118:35 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - kieuhienthi\cacbaistem\stemthuycanh.dart:122:37 - deprecated_member_use
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\stemthuycanh.dart:191:60 - curly_braces_in_flow_control_structures
+   info - The imported package 'uuid' isn't a dependency of the importing package - kieuhienthi\cacbaistem\widgetdieukhien.dart:7:8 - depend_on_referenced_packages
+   info - Unnecessary braces in a string interpolation - kieuhienthi\cacbaistem\widgetdieukhien.dart:221:22 - unnecessary_brace_in_string_interps
+   info - Unnecessary braces in a string interpolation - kieuhienthi\cacbaistem\widgetdieukhien.dart:221:71 - unnecessary_brace_in_string_interps
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:705:11 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:719:11 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:726:11 - curly_braces_in_flow_control_structures
+   info - Statements in a for should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:895:30 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:931:23 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:933:23 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:935:23 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1161:19 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1164:19 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1166:19 - curly_braces_in_flow_control_structures
+   info - The 'child' argument should be last in widget constructor invocations - kieuhienthi\cacbaistem\widgetdieukhien.dart:1179:17 - sort_child_properties_last
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1263:19 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1266:19 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1268:19 - curly_braces_in_flow_control_structures
+   info - The 'child' argument should be last in widget constructor invocations - kieuhienthi\cacbaistem\widgetdieukhien.dart:1281:17 - sort_child_properties_last
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1321:19 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1323:19 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1325:19 - curly_braces_in_flow_control_structures
+   info - The 'child' argument should be last in widget constructor invocations - kieuhienthi\cacbaistem\widgetdieukhien.dart:1338:17 - sort_child_properties_last
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1358:21 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1360:21 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1362:21 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1364:21 - curly_braces_in_flow_control_structures
+   info - The 'child' argument should be last in widget constructor invocations - kieuhienthi\cacbaistem\widgetdieukhien.dart:1377:19 - sort_child_properties_last
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1426:21 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1444:19 - curly_braces_in_flow_control_structures
+   info - Statements in a while should be enclosed in a block - kieuhienthi\cacbaistem\widgetdieukhien.dart:1447:21 - curly_braces_in_flow_control_structures
+   info - Unnecessary instance of 'Container' - kieuhienthi\manhinhbang.dart:31:12 - avoid_unnecessary_containers
+warning - The value of the local variable 'key' isn't used - kieuhienthi\manhinhbang.dart:78:12 - unused_local_variable
+   info - Use interpolation to compose strings and values - kieuhienthi\manhinhbang.dart:78:18 - prefer_interpolation_to_compose_strings
+warning - The operand can't be 'null', so the condition is always 'true' - kieuhienthi\manhinhbang.dart:86:39 - unnecessary_null_comparison
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\manhinhbang.dart:161:19 - prefer_const_constructors
+   info - Unnecessary use of 'toList' in a spread - kieuhienthi\manhinhbang.dart:232:14 - unnecessary_to_list_in_spreads
+warning - The value of the local variable 'isMobile' isn't used - kieuhienthi\manhinhbang.dart:255:31 - unused_local_variable
+   info - Unnecessary use of 'toList' in a spread - kieuhienthi\manhinhbang.dart:299:32 - unnecessary_to_list_in_spreads
+warning - This method overrides a method annotated as '@mustCallSuper' in 'State', but doesn't invoke the overridden method - kieuhienthi\manhinhbang.dart:317:8 - must_call_super
+warning - The operand can't be 'null', so the condition is always 'true' - kieuhienthi\manhinhbang.dart:329:18 - unnecessary_null_comparison
+warning - The operand can't be 'null', so the condition is always 'true' - kieuhienthi\manhinhbang.dart:355:43 - unnecessary_null_comparison
+   info - Don't invoke 'print' in production code - kieuhienthi\manhinhbang.dart:359:17 - avoid_print
+   info - Invalid use of a private type in a public API - kieuhienthi\manhinhdongho.dart:45:3 - library_private_types_in_public_api
+warning - This method overrides a method annotated as '@mustCallSuper' in 'State', but doesn't invoke the overridden method - kieuhienthi\manhinhdongho.dart:57:8 - must_call_super
+   info - Unnecessary instance of 'Container' - kieuhienthi\manhinhdongho.dart:144:35 - avoid_unnecessary_containers
+warning - Unused import: 'dart:ffi' - kieuhienthi\manhinhdothi.dart:3:8 - unused_import
+warning - The value of the field '_meta' isn't used - kieuhienthi\manhinhdothi.dart:80:30 - unused_field
+warning - The value of the field '_windowSizeDefault' isn't used - kieuhienthi\manhinhdothi.dart:94:20 - unused_field
+   info - The private field _zoomX could be 'final' - kieuhienthi\manhinhdothi.dart:102:10 - prefer_final_fields
+warning - The value of the field '_zoomX' isn't used - kieuhienthi\manhinhdothi.dart:102:10 - unused_field
+   info - Statements in an if should be enclosed in a block - kieuhienthi\manhinhdothi.dart:134:11 - curly_braces_in_flow_control_structures
+   info - Don't invoke 'print' in production code - kieuhienthi\manhinhdothi.dart:147:9 - avoid_print
+   info - Statements in an if should be enclosed in a block - kieuhienthi\manhinhdothi.dart:147:9 - curly_braces_in_flow_control_structures
+   info - Don't invoke 'print' in production code - kieuhienthi\manhinhdothi.dart:174:26 - avoid_print
+warning - The value of the local variable 'samplesOnScreen' isn't used - kieuhienthi\manhinhdothi.dart:464:11 - unused_local_variable
+warning - The operand can't be 'null', so the condition is always 'false' - kieuhienthi\manhinhdothi.dart:510:46 - unnecessary_null_comparison
+   info - Don't invoke 'print' in production code - kieuhienthi\manhinhdothi.dart:534:9 - avoid_print
+   info - Don't invoke 'print' in production code - kieuhienthi\manhinhdothi.dart:578:11 - avoid_print
+   info - Don't invoke 'print' in production code - kieuhienthi\manhinhdothi.dart:604:11 - avoid_print
+   info - Don't invoke 'print' in production code - kieuhienthi\manhinhdothi.dart:631:11 - avoid_print
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - kieuhienthi\manhinhdothi.dart:783:29 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - kieuhienthi\manhinhdothi.dart:786:29 - deprecated_member_use
+warning - The value of the local variable 'hTicks' isn't used - kieuhienthi\manhinhdothi.dart:794:15 - unused_local_variable
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\manhinhdothi.dart:808:22 - prefer_const_constructors
+   info - The local variable '_niceTimeStep' starts with an underscore - kieuhienthi\manhinhdothi.dart:832:12 - no_leading_underscores_for_local_identifiers
+   info - Use 'const' for final variables initialized to a constant value - kieuhienthi\manhinhdothi.dart:863:5 - prefer_const_declarations
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\manhinhdothi.dart:894:21 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\manhinhdothi.dart:906:17 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\manhinhdothi.dart:908:22 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\manhinhdothi.dart:911:24 - prefer_const_constructors
+warning - The value of the local variable 'paintFill' isn't used - kieuhienthi\manhinhdothi.dart:929:13 - unused_local_variable
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - kieuhienthi\manhinhdothi.dart:929:48 - deprecated_member_use
+warning - The value of the local variable 'visibleList' isn't used - kieuhienthi\manhinhdothi.dart:932:13 - unused_local_variable
+   info - Statements in an if should be enclosed in a block - kieuhienthi\manhinhdothi.dart:949:13 - curly_braces_in_flow_control_structures
+   info - Statements in an if should be enclosed in a block - kieuhienthi\manhinhdothi.dart:951:13 - curly_braces_in_flow_control_structures
+warning - The value of the local variable 'path' isn't used - kieuhienthi\manhinhdothi.dart:969:15 - unused_local_variable
+   info - Use 'const' for final variables initialized to a constant value - kieuhienthi\manhinhdothi.dart:1008:5 - prefer_const_declarations
+   info - Use 'const' for final variables initialized to a constant value - kieuhienthi\manhinhdothi.dart:1009:5 - prefer_const_declarations
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\manhinhdothi.dart:1013:20 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\manhinhdothi.dart:1023:20 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\manhinhdothi.dart:1031:23 - prefer_const_constructors
+warning - Unused import: 'package:mview/Model/cambien.dart' - kieuhienthi\manhinhso.dart:4:8 - unused_import
+warning - The field doesn't override an inherited getter or setter - kieuhienthi\manhinhso.dart:115:15 - override_on_non_overriding_member
+warning - The value of the field '_tencbSubcription' isn't used - kieuhienthi\manhinhso.dart:116:43 - unused_field
+   info - The member 'build' overrides an inherited member but isn't annotated with '@override' - kieuhienthi\manhinhso.dart:117:10 - annotate_overrides
+warning - This method overrides a method annotated as '@mustCallSuper' in 'State', but doesn't invoke the overridden method - kieuhienthi\manhinhso.dart:129:8 - must_call_super
+   info - Use interpolation to compose strings and values - kieuhienthi\manhinhso.dart:133:17 - prefer_interpolation_to_compose_strings
+   info - Use interpolation to compose strings and values - kieuhienthi\manhinhso.dart:138:17 - prefer_interpolation_to_compose_strings
+   info - Use interpolation to compose strings and values - kieuhienthi\manhinhso.dart:199:23 - prefer_interpolation_to_compose_strings
+warning - Unused import: 'package:mview/ultis/listcambien.dart' - kieuhienthi\manhinhsododothi.dart:5:8 - unused_import
+   info - Use 'const' with the constructor to improve performance - kieuhienthi\manhinhsododothi.dart:21:18 - prefer_const_constructors
+warning - This method overrides a method annotated as '@mustCallSuper' in 'State', but doesn't invoke the overridden method - kieuhienthi\manhinhsododothi.dart:73:8 - must_call_super
+   info - Use a 'SizedBox' to add whitespace to a layout - kieuhienthi\manhinhsododothi.dart:140:12 - sized_box_for_whitespace
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdoctheodiem.dart:309:45 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdoctheodiem.dart:348:45 - prefer_const_constructors
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - manhinhchinh\manhinhdoctheodiem.dart:479:30 - prefer_const_literals_to_create_immutables
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdoctheodiem.dart:480:21 - prefer_const_constructors
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - manhinhchinh\manhinhdoctheodiem.dart:490:39 - prefer_const_literals_to_create_immutables
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - manhinhchinh\manhinhdoctheodiem.dart:886:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - manhinhchinh\manhinhdoctheodiem.dart:898:53 - deprecated_member_use
+   info - Use a 'SizedBox' to add whitespace to a layout - manhinhchinh\manhinhdongxoaychieu.dart:115:14 - sized_box_for_whitespace
+warning - This method overrides a method annotated as '@mustCallSuper' in 'State', but doesn't invoke the overridden method - manhinhchinh\manhinhdongxoaychieu.dart:128:8 - must_call_super
+   info - Invalid use of a private type in a public API - manhinhchinh\manhinhdongxoaychieu.dart:338:19 - library_private_types_in_public_api
+   info - Invalid use of a private type in a public API - manhinhchinh\manhinhdongxoaychieu.dart:347:9 - library_private_types_in_public_api
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:412:17 - prefer_const_constructors
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - manhinhchinh\manhinhdongxoaychieu.dart:434:24 - prefer_const_literals_to_create_immutables
+   info - Unnecessary use of string interpolation - manhinhchinh\manhinhdongxoaychieu.dart:439:15 - unnecessary_string_interpolations
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:453:15 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:458:24 - prefer_const_constructors
+   info - Invalid use of a private type in a public API - manhinhchinh\manhinhdongxoaychieu.dart:481:19 - library_private_types_in_public_api
+   info - Invalid use of a private type in a public API - manhinhchinh\manhinhdongxoaychieu.dart:491:9 - library_private_types_in_public_api
+   info - Use 'const' literals as arguments to constructors of '@immutable' classes - manhinhchinh\manhinhdongxoaychieu.dart:545:32 - prefer_const_literals_to_create_immutables
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:546:23 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:550:33 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:603:17 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:604:28 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:605:17 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:627:17 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:683:15 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:684:16 - prefer_const_constructors
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - manhinhchinh\manhinhdongxoaychieu.dart:689:40 - deprecated_member_use
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:702:29 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:710:28 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:714:15 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:721:11 - prefer_const_constructors
+   info - Use 'const' with the constructor to improve performance - manhinhchinh\manhinhdongxoaychieu.dart:726:11 - prefer_const_constructors
+   info - Unnecessary braces in a string interpolation - manhinhchinh\manhinhdongxoaychieu.dart:728:72 - unnecessary_brace_in_string_interps
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - manhinhchinh\manhinhhome.dart:92:40 - deprecated_member_use
+   info - Unnecessary instance of 'Container' - manhinhchinh\manhinhsongam.dart:8:12 - avoid_unnecessary_containers
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - popup\popupbocuc.dart:122:36 - deprecated_member_use
+   info - Unnecessary constructor invocation - popup\popupchonsodo.dart:94:40 - prefer_collection_literals
+warning - The receiver can't be null, so the null-aware operator '?.' is unnecessary - popup\popupchonsodo.dart:130:36 - invalid_null_aware_operator
+   info - Use 'isNotEmpty' instead of 'length' to test whether the collection is empty - popup\popupchonsodo.dart:172:16 - prefer_is_empty
+   info - Use 'const' with the constructor to improve performance - popup\popupchonsodo.dart:324:24 - prefer_const_constructors
+warning - This method overrides a method annotated as '@mustCallSuper' in 'State', but doesn't invoke the overridden method - popup\popupchonsodo.dart:371:8 - must_call_super
+   info - The variable name '_ShowMenuDonvi' isn't a lowerCamelCase identifier - popup\popupchonsodo.dart:381:8 - non_constant_identifier_names
+warning - The '!' will have no effect because the receiver can't be null - popup\popupchonsodo.dart:418:45 - unnecessary_non_null_assertion
+   info - Unnecessary use of 'toList' in a spread - popup\popupkieuhienthi.dart:69:12 - unnecessary_to_list_in_spreads
+   info - Unnecessary instance of 'Container' - popup\popupphantich.dart:49:13 - avoid_unnecessary_containers
+

@@ -6,7 +6,6 @@ import '../../../Model/dulieucambien.dart';
 import 'bdk_helper.dart' as sendData;
 import 'cong_widget.dart';
 
-
 class StemLoSayNongSan extends StatefulWidget {
   final Stream<DulieuCB> stream;
   final void Function(List<String>) onPortsChanged;
@@ -61,7 +60,7 @@ class _StemLoSayNongSanState extends State<StemLoSayNongSan> {
           height: 20,
           color: Colors.blue,
           alignment: Alignment.center,
-          child:  Text(
+          child: Text(
             widget.tenbaihoc,
             style: TextStyle(
               color: Colors.white,
@@ -82,7 +81,7 @@ class _StemLoSayNongSanState extends State<StemLoSayNongSan> {
                         selected: selectedPort1,
                         giaTri: selectedPort1 != null
                             ? (currentValues[selectedPort1] ?? 0)
-                            .toStringAsFixed(2)
+                                .toStringAsFixed(2)
                             : "-",
                         onChanged: (val) {
                           setState(() {
@@ -97,7 +96,7 @@ class _StemLoSayNongSanState extends State<StemLoSayNongSan> {
                         selected: selectedPort2,
                         giaTri: selectedPort2 != null
                             ? (currentValues[selectedPort2] ?? 0)
-                            .toStringAsFixed(2)
+                                .toStringAsFixed(2)
                             : "-",
                         onChanged: (val) {
                           setState(() {
@@ -128,12 +127,12 @@ class _StemLoSayNongSanState extends State<StemLoSayNongSan> {
 
   void onDieuKhienChanged(Map<String, List<int>> newValues) {
     for (var entry in newValues.entries) {
-      String cong = entry.key;       // ví dụ "D3"
-      List<int> data = entry.value;  // ví dụ [1, 255]
+      String cong = entry.key; // ví dụ "D3"
+      List<int> data = entry.value; // ví dụ [1, 255]
 
       int lenh = data[0];
       int value = data[1];
-      int congVal = sendData.pinMap[cong] ?? 0;   // ✅ dùng pinMap từ bdk_helper
+      int congVal = sendData.pinMap[cong] ?? 0; // ✅ dùng pinMap từ bdk_helper
 
       int len = 3;
       List<int> frame = [0x02, len, lenh, congVal, value, 0xFF];

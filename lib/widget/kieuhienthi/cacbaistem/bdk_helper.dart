@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:universal_ble/universal_ble.dart';   // ✅ đổi thư viện
+import 'package:universal_ble/universal_ble.dart'; // ✅ đổi thư viện
 import '../../../Model/sodocambien.dart';
 import '../../../ultis/listcambien.dart' as globals;
 
@@ -19,7 +19,7 @@ Future<void> writeDataToBDK(List<int> data) async {
     // chỉ gửi cho thiết bị có tên bắt đầu bằng "Mlab"
     final name = device.name;
     print('name $name');
-    if (!(name!.startsWith("Mlab") || name.startsWith("BDK")) ) {
+    if (!(name!.startsWith("Mlab") || name.startsWith("BDK") || name.startsWith("Launch"))) {
       continue;
     }
     print('Đang gửi tới: $name');
@@ -27,8 +27,7 @@ Future<void> writeDataToBDK(List<int> data) async {
 
     for (BleService service in services) {
       if (globals.serviceUuid.contains(service.uuid.toString())) {
-        for (BleCharacteristic characteristic
-        in service.characteristics) {
+        for (BleCharacteristic characteristic in service.characteristics) {
           if (globals.characteristicUuid
               .contains(characteristic.uuid.toString())) {
             try {

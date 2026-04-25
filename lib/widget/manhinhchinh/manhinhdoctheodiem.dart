@@ -53,10 +53,26 @@ class _ManhinhDocTheoDiemState extends State<ManhinhDocTheoDiem> {
 
       // Nếu dữ liệu trùng với cảm biến X hoặc Y thì cập nhật
       if (dulieu.tenCambien == cambienX!.name) {
-        latestX = dulieu.giaTri.isNotEmpty ? dulieu.giaTri[0] : null;
+        if (dulieu.giaTri.isNotEmpty) {
+           double val = dulieu.giaTri[0];
+           if (cambienX!.heso != null && cambienX!.heso!.isNotEmpty) {
+             val = val * cambienX!.heso![0] + (cambienX!.heso!.length > 1 ? cambienX!.heso![1] : 0);
+           }
+           latestX = val;
+        } else {
+           latestX = null;
+        }
       }
       if (dulieu.tenCambien == cambienY!.name) {
-        latestY = dulieu.giaTri.isNotEmpty ? dulieu.giaTri[0] : null;
+        if (dulieu.giaTri.isNotEmpty) {
+           double val = dulieu.giaTri[0];
+           if (cambienY!.heso != null && cambienY!.heso!.isNotEmpty) {
+             val = val * cambienY!.heso![0] + (cambienY!.heso!.length > 1 ? cambienY!.heso![1] : 0);
+           }
+           latestY = val;
+        } else {
+           latestY = null;
+        }
       }
 
       // Cập nhật dòng hiện tại hiển thị tạm thời
@@ -551,6 +567,13 @@ class _ChartWidgetState extends State<_ChartWidget> {
   Offset? _dragEnd;
 
   bool _isZoomMode = true;
+  ZoomMode _syncfusionZoomMode = ZoomMode.xy;
+  Key _sfChartKey = UniqueKey();
+  double? _customVisibleMinX;
+  double? _customVisibleMaxX;
+  double? _customVisibleMinY;
+  double? _customVisibleMaxY;
+
   bool _isAnalysisOn = false;
   String _analysisMode = "none";
   String _analysisText = "";
@@ -649,6 +672,54 @@ class _ChartWidgetState extends State<_ChartWidget> {
     });
   }
 
+  void _zoomToSelection() {
+    if (_selectionRect == null || dataPoints.isEmpty) return;
+    final box = _chartKey.currentContext?.findRenderObject() as RenderBox?;
+    if (box == null) return;
+    
+    final size = box.size;
+    const double leftPadding = 60.0;
+    const double rightPadding = 20.0;
+    const double topPadding = 20.0;
+    const double bottomPadding = 40.0;
+
+    final plotRect = Rect.fromLTWH(
+      leftPadding,
+      topPadding,
+      size.width - leftPadding - rightPadding,
+      size.height - topPadding - bottomPadding,
+    );
+
+    final xMinData = dataPoints.map((e) => e['x']!).reduce(min);
+    final xMaxData = dataPoints.map((e) => e['x']!).reduce(max);
+    final yMinData = dataPoints.map((e) => e['y']!).reduce(min);
+    final yMaxData = dataPoints.map((e) => e['y']!).reduce(max);
+
+    double pxMin = _selectionRect!.left;
+    double pxMax = _selectionRect!.right;
+    double pyMin = _selectionRect!.top;
+    double pyMax = _selectionRect!.bottom;
+
+    double selXMin = xMinData + ((pxMin - plotRect.left) / plotRect.width) * (xMaxData - xMinData + 1e-9);
+    double selXMax = xMinData + ((pxMax - plotRect.left) / plotRect.width) * (xMaxData - xMinData + 1e-9);
+    double selYMax = yMinData + (1 - (pyMin - plotRect.top) / plotRect.height) * (yMaxData - yMinData + 1e-9);
+    double selYMin = yMinData + (1 - (pyMax - plotRect.top) / plotRect.height) * (yMaxData - yMinData + 1e-9);
+
+    setState(() {
+      _customVisibleMinX = min(selXMin, selXMax);
+      _customVisibleMaxX = max(selXMin, selXMax);
+      _customVisibleMinY = min(selYMin, selYMax);
+      _customVisibleMaxY = max(selYMin, selYMax);
+      
+      _selectionRect = null;
+      _highlightedIndexes.clear();
+      _analysisText = "";
+      _bestFitLine.clear();
+      _sfChartKey = UniqueKey();
+      _isZoomMode = true; // Chuyển về chế độ zoom ban đầu
+    });
+  }
+
   void setAxisTitles({required String x, required String y}) {
     setState(() {
       _xTitle = x;
@@ -679,6 +750,51 @@ class _ChartWidgetState extends State<_ChartWidget> {
                       backgroundColor:
                       _isZoomMode ? Colors.blue : Colors.blue.shade50),
                 ),
+                if (_isZoomMode) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    height: 36,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<ZoomMode>(
+                        value: _syncfusionZoomMode,
+                        isDense: true,
+                        items: const [
+                          DropdownMenuItem(value: ZoomMode.xy, child: Text("X & Y")),
+                          DropdownMenuItem(value: ZoomMode.x, child: Text("Trục X")),
+                          DropdownMenuItem(value: ZoomMode.y, child: Text("Trục Y")),
+                        ],
+                        onChanged: (val) {
+                          if (val != null) {
+                            setState(() => _syncfusionZoomMode = val);
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _customVisibleMinX = null;
+                        _customVisibleMaxX = null;
+                        _customVisibleMinY = null;
+                        _customVisibleMaxY = null;
+                        _sfChartKey = UniqueKey();
+                      });
+                    },
+                    icon: const Icon(Icons.refresh, size: 18, color: Colors.blue),
+                    label: const Text("Reset"),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue.shade50,
+                        foregroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(horizontal: 8)),
+                  ),
+                ],
                 const SizedBox(width: 8),
                 ElevatedButton.icon(
                   onPressed: () => setState(() => _isZoomMode = false),
@@ -728,9 +844,20 @@ class _ChartWidgetState extends State<_ChartWidget> {
                     ],
                   ),
                 const SizedBox(width: 8),
-                // nút xóa selection
-                if (_selectionRect != null)
-                  ElevatedButton(
+                // các nút điều khiển vùng chọn
+                if (_selectionRect != null) ...[
+                  ElevatedButton.icon(
+                    onPressed: _zoomToSelection,
+                    icon: const Icon(Icons.zoom_in_outlined, size: 16),
+                    label: const Text("Zoom vùng"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue.shade600,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
                     onPressed: () {
                       setState(() {
                         _selectionRect = null;
@@ -739,8 +866,15 @@ class _ChartWidgetState extends State<_ChartWidget> {
                         _bestFitLine.clear();
                       });
                     },
-                    child: const Text("Xóa vùng"),
+                    icon: const Icon(Icons.close, size: 16),
+                    label: const Text("Xóa vùng"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red.shade400,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                    ),
                   ),
+                ],
               ],
             ),
           ),
@@ -754,19 +888,26 @@ class _ChartWidgetState extends State<_ChartWidget> {
               // SfCartesianChart
               Positioned.fill(
                 child: SfCartesianChart(
+                  key: _sfChartKey,
                   primaryXAxis: NumericAxis(
                     title: AxisTitle(text: _xTitle),
                     majorGridLines:
                     const MajorGridLines(width: 0.4, dashArray: [5, 4]),
+                    initialVisibleMinimum: _customVisibleMinX,
+                    initialVisibleMaximum: _customVisibleMaxX,
                   ),
                   primaryYAxis: NumericAxis(
                     title: AxisTitle(text: _yTitle),
                     majorGridLines:
                     const MajorGridLines(width: 0.4, dashArray: [5, 4]),
+                    initialVisibleMinimum: _customVisibleMinY,
+                    initialVisibleMaximum: _customVisibleMaxY,
                   ),
                   zoomPanBehavior: ZoomPanBehavior(
                     enablePinching: _isZoomMode,
                     enablePanning: _isZoomMode,
+                    enableMouseWheelZooming: _isZoomMode, // Bật zoom bằng con lăn chuột
+                    zoomMode: _syncfusionZoomMode,
                   ),
                   series: <CartesianSeries>[
                     LineSeries<Map<String, dynamic>, double>(
@@ -877,7 +1018,7 @@ class _ChartWidgetState extends State<_ChartWidget> {
                   ),
                 ),
 
-              // selection rect overlay + close button + analysis text
+              // selection rect overlay + analysis text
               if (_selectionRect != null)
                 Positioned.fromRect(
                   rect: _selectionRect!,
@@ -902,25 +1043,6 @@ class _ChartWidgetState extends State<_ChartWidget> {
                                   style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                             ),
                           ),
-                        Positioned(
-                          right: 6,
-                          top: 6,
-                          child: InkWell(
-                            onTap: () {
-                              setState(() {
-                                _selectionRect = null;
-                                _highlightedIndexes.clear();
-                                _analysisText = "";
-                                _bestFitLine.clear();
-                              });
-                            },
-                            child: Container(
-                              decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.red),
-                              padding: const EdgeInsets.all(4),
-                              child: const Icon(Icons.close, size: 14, color: Colors.white),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                   ),

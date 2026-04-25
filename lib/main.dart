@@ -19,6 +19,7 @@ import 'package:mview/widget/dialog/thumuc_dialog.dart';
 import 'package:mview/widget/kieuhienthi/cacbaistem/lenmensuachua.dart';
 import 'package:mview/widget/kieuhienthi/cacbaistem/nhakinhthongminh.dart';
 import 'package:mview/widget/kieuhienthi/cacbaistem/stemlosaynongsan.dart';
+import 'package:mview/widget/kieuhienthi/cacbaistem/stemtenluanuoc.dart'; // import mới
 import 'package:mview/widget/manhinhchinh/bocuc1manhinh.dart';
 import 'package:mview/widget/manhinhchinh/bocuc2manhinhdoc.dart';
 import 'package:mview/widget/manhinhchinh/bocuc2manhinhngang.dart';
@@ -313,7 +314,6 @@ class MyWidget extends State<MainWidget> {
     ConnectionManager().init(
         context: context,
         onDisconnectedAll: () {
-
           // Callback khi tất cả thiết bị bị ngắt kết nối
           setState(() {
             // Nếu đang ở chế độ Start => Dừng lại
@@ -436,8 +436,13 @@ class MyWidget extends State<MainWidget> {
                   //         "${dataList.map((e) => e.toRadixString(16).padLeft(2, '0')).join(' ')}"
                   // );
 
-                  // === giữ nguyên logic xử lý dữ liệu của bạn ===
-                  if (_selectedBocuc >= 10) {
+                  int vitriX = device.name?.indexOf('-') ?? -1;
+                  String tcb = "";
+                  if (vitriX > 0) {
+                    tcb = device.name?.substring(0, vitriX) ?? '';
+                  }
+
+                  if (_selectedBocuc >= 10 && tcb == "Mlab") {
                     xuLyDuLieuStem(device, dataList);
                   } else {
                     if (dataList.isNotEmpty &&
@@ -453,6 +458,10 @@ class MyWidget extends State<MainWidget> {
                         xuLyDulieuDongap(device, dataList);
                       } else if (tencambien == "SoundF") {
                         xuLyDulieuAmthanh(device, dataList);
+                      } else if (tencambien == "QD") {
+                        xuLyDulieuQuangdien(device, dataList);
+                      } else if (tencambien == "Alt_Acc") {
+                        xuLyDulieuDocao(device, dataList);
                       } else {
                         String name = "";
                         for (Cambien cambien in globals.cambiens) {
@@ -619,6 +628,92 @@ class MyWidget extends State<MainWidget> {
 
       _bufferedValues[keyAp]!.addAll(mangAp);
       _bufferedValues[keyDong]!.addAll(mangDong);
+    });
+  }
+
+  void xuLyDulieuQuangdien(BleDevice device, List<int> data) {
+    List<double> mangAp = [];
+    List<double> mangDong = [];
+
+    if (data.length < 10) return; // ít nhất phải có 1 mẫu
+
+    int payloadSize = data.length - 2; // bỏ 0x02 và 0x03
+
+    if (payloadSize % 8 != 0) {
+      print("BLE: Payload không chia hết cho 8: $payloadSize");
+      return;
+    }
+
+    Uint8List bytes = Uint8List.fromList(data);
+    ByteData byteData = bytes.buffer.asByteData();
+
+    for (int i = 0; i < payloadSize; i += 8) {
+      int index = i + 1; // bỏ byte start 0x02
+
+      if (index + 7 >= data.length - 1) {
+        print("BLE: Bỏ qua mẫu cuối do thiếu byte");
+        break;
+      }
+
+      double voltage = byteData.getFloat32(index, Endian.little);
+      double current = byteData.getFloat32(index + 4, Endian.little);
+
+      mangAp.add(voltage);
+      mangDong.add(current);
+    }
+
+    final keyAp = "${device.name},${globals.cambiens[11].name}";
+    final keyDong = "${device.name},${globals.cambiens[10].name}";
+
+    _lock.synchronized(() {
+      _bufferedValues.putIfAbsent(keyAp, () => []);
+      _bufferedValues.putIfAbsent(keyDong, () => []);
+
+      _bufferedValues[keyAp]!.addAll(mangAp);
+      _bufferedValues[keyDong]!.addAll(mangDong);
+    });
+  }
+
+  void xuLyDulieuDocao(BleDevice device, List<int> data) {
+    List<double> mangAltitude = [];
+    List<double> mangAccelZ = [];
+
+    if (data.length < 10) return; // ít nhất phải có 1 mẫu
+
+    int payloadSize = data.length - 2; // bỏ 0x02 và 0x03
+
+    if (payloadSize % 8 != 0) {
+      print("BLE: Payload không chia hết cho 8: $payloadSize");
+      return;
+    }
+
+    Uint8List bytes = Uint8List.fromList(data);
+    ByteData byteData = bytes.buffer.asByteData();
+
+    for (int i = 0; i < payloadSize; i += 8) {
+      int index = i + 1; // bỏ byte start 0x02
+
+      if (index + 7 >= data.length - 1) {
+        print("BLE: Bỏ qua mẫu cuối do thiếu byte");
+        break;
+      }
+
+      double altitude = byteData.getFloat32(index, Endian.little);
+      double accZ = byteData.getFloat32(index + 4, Endian.little);
+
+      mangAltitude.add(altitude);
+      mangAccelZ.add(accZ);
+    }
+
+    final keyAltitude = "${device.name},${globals.cambiens[15].name}";
+    final keyAccZ = "${device.name},${globals.cambiens[16].name}";
+
+    _lock.synchronized(() {
+      _bufferedValues.putIfAbsent(keyAltitude, () => []);
+      _bufferedValues.putIfAbsent(keyAccZ, () => []);
+
+      _bufferedValues[keyAltitude]!.addAll(mangAltitude);
+      _bufferedValues[keyAccZ]!.addAll(mangAccelZ);
     });
   }
 
@@ -797,7 +892,7 @@ class MyWidget extends State<MainWidget> {
       case 4:
         return Bocuc3Manhinh(stream: _streamController.stream);
       case 5:
-        return  ManhinhDocTheoDiem(stream : _streamController.stream);
+        return ManhinhDocTheoDiem(stream: _streamController.stream);
       case 6:
         return Manhinhdongxoaychieu(streamReadData: _streamController.stream);
       case 7:
@@ -823,6 +918,11 @@ class MyWidget extends State<MainWidget> {
         );
       case 13:
         return StemThuyCanhScreen(
+          stream: _streamController.stream,
+          tenbaihoc: globals.lession[_selectedBocuc - 10],
+        );
+      case 14:
+        return StemTenluaNuocScreen(
           stream: _streamController.stream,
           tenbaihoc: globals.lession[_selectedBocuc - 10],
         );

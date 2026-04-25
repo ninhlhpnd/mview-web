@@ -251,6 +251,15 @@ class _CustomDialogContentState extends State<CustomDialogContent> {
     }
 
     if (isConnected) {
+      // Nếu đang xem lịch sử mà người dùng kết nối Bluetooth thực tế, thoát chế độ lịch sử
+      if (globals.historyViewMode.value) {
+        globals.historyViewMode.value = false;
+        globals.historySelected = {};
+        globals.clearData.value = true; // Yêu cầu đồ thị xóa dữ liệu cũ
+      }
+      // Xóa luôn lịch sử các lần chạy củ trên app (để khi chạy lại sẽ bắt đầu từ lần 1)
+      GetStorage().remove('history_list');
+
       // find device in foundDevices (if present), else construct a minimal one
       BleDevice? found;
       try {

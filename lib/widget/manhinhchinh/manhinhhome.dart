@@ -15,33 +15,35 @@ class ManhinhHome extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: Center(
-        child: Wrap(
-          alignment: WrapAlignment.center,
-          spacing: 32,
-          runSpacing: 32,
-          children: [
-            FunctionButton(
-              nameButton: "Đọc dữ liệu tự động",
-              iconButton: Icons.auto_mode_outlined,
-              function: () => onClickManhinhHome(1),
-              width: isMobile ? size.width * 0.8 : 200,
-              height: 130,
-            ),
-            FunctionButton(
-              nameButton: "Đọc dữ liệu theo điểm",
-              iconButton: Icons.fiber_manual_record_outlined,
-              function: () => onClickManhinhHome(5),
-              width: isMobile ? size.width * 0.8 : 200,
-              height: 130,
-            ),
-            FunctionButton(
-              nameButton: "Dao động ký",
-              iconButton: Icons.bolt_outlined,
-              function: () => onClickManhinhHome(6),
-              width: isMobile ? size.width * 0.8 : 200,
-              height: 130,
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 32,
+            runSpacing: 32,
+            children: [
+              FunctionButton(
+                nameButton: "Đọc dữ liệu tự động",
+                iconButton: Icons.auto_mode_outlined,
+                function: () => onClickManhinhHome(1),
+                width: isMobile ? size.width * 0.8 : 200,
+                height: 130,
+              ),
+              FunctionButton(
+                nameButton: "Đọc dữ liệu theo điểm",
+                iconButton: Icons.fiber_manual_record_outlined,
+                function: () => onClickManhinhHome(5),
+                width: isMobile ? size.width * 0.8 : 200,
+                height: 130,
+              ),
+              FunctionButton(
+                nameButton: "Dao động ký",
+                iconButton: Icons.bolt_outlined,
+                function: () => onClickManhinhHome(6),
+                width: isMobile ? size.width * 0.8 : 200,
+                height: 130,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -105,15 +107,20 @@ class _FunctionButtonState extends State<FunctionButton> {
                   color: iconColor,
                 ),
                 const SizedBox(height: 10),
-                AutoSizeText(
-                  widget.nameButton,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Center(
+                    child: AutoSizeText(
+                      widget.nameButton,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 2,
+                      minFontSize: 12,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  maxLines: 2,
-                  minFontSize: 12,
                 ),
               ],
             ),

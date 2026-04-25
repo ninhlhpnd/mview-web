@@ -203,7 +203,8 @@ class _StemThuyCanhScreenState extends State<StemThuyCanhScreen> {
               debugPrint("⚠️ subscribeNotifications failed for $name "
                   "${service.uuid}/${characteristic.uuid} : $e");
             }
-            listenBDKNotification(device.deviceId, characteristic.uuid.toString());
+            listenBDKNotification(
+                device.deviceId, characteristic.uuid.toString());
           }
         }
       } catch (e) {

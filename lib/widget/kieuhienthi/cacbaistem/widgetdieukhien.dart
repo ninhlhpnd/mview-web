@@ -346,14 +346,16 @@ Future<void> executeCommands(
             onError: onError);
         onSet(2, cmd.target, val);
       } else if (cmd.type == CommandType.whileCmd) {
-        int safety = 1000;
         while (!stopFlag() &&
             _evalConditions(
                 cmd.conditions, cmd.betweenOps, sensorValues, variables,
-                onError: onError) &&
-            safety-- > 0) {
+                onError: onError)) {
           await executeCommands(cmd.thenActions, sensorValues, variables, onSet,
               stopFlag: stopFlag, onError: onError);
+          
+          if (stopFlag()) break;
+          // Nhường luồng cho UI xử lý nút STOP và giảm tải Bluetooth
+          await Future.delayed(const Duration(milliseconds: 50));
         }
       } else if (cmd.type == CommandType.forCmd) {
         // FOR scoping: save old value and restore afterward (local variable behavior)
@@ -367,8 +369,7 @@ Future<void> executeCommands(
             onError: onError);
         variables[varName] = init;
 
-        int safety = 10000; // big safety to avoid infinite loop
-        while (!stopFlag() && safety-- > 0) {
+        while (!stopFlag()) {
           // evaluate condition: left comparator right
           final double left = _evalExpression(
               cmd.condLeftTokens, sensorValues, variables,
@@ -413,6 +414,9 @@ Future<void> executeCommands(
               cmd.stepTokens, sensorValues, variables,
               onError: onError);
           variables[varName] = (variables[varName] ?? 0) + step;
+
+          // Nhường luồng cho UI xử lý nút STOP
+          await Future.delayed(const Duration(milliseconds: 50));
         }
 
         // restore old variable state (local scoping)
@@ -597,7 +601,13 @@ class _DieuKhienWidgetState extends State<DieuKhienWidget> {
   final List<CommandModel> _commands = [];
   final Map<String, double> _variables = {};
   final List<String> _dPins = globals.dPins;
-  final List<String> _sensors = ['A1', 'A2'];
+  List<String> get _sensors => {
+        'A1',
+        'A2',
+        ..._dPins,
+        ...globals.SodoCambienList.map((c) => c.tenCambien),
+        ...widget.valueGate.keys
+      }.toList();
   final ScrollController _varScrollController = ScrollController();
   bool _isRunning = false;
   bool _shouldStop = false;
@@ -634,11 +644,13 @@ class _DieuKhienWidgetState extends State<DieuKhienWidget> {
       _isRunning = true;
     });
 
-    Map<String, double> sensors = widget.valueGate;
+    for (var s in _sensors) {
+        widget.valueGate.putIfAbsent(s, () => 0.0);
+    }
 
     await executeCommands(
       _commands,
-      sensors,
+      widget.valueGate,
       _variables,
       (cmd, pin, val) {
         if (_shouldStop) return;
@@ -997,11 +1009,14 @@ class _DieuKhienWidgetState extends State<DieuKhienWidget> {
                 // RUN
                 ElevatedButton.icon(
                   onPressed: _run,
-                  icon: Icon(_isRunning ? Icons.stop : Icons.play_arrow, size: 16),
-                  label: Text(_isRunning ? 'STOP' : 'RUN', style: const TextStyle(fontSize: 13)),
+                  icon: Icon(_isRunning ? Icons.stop : Icons.play_arrow,
+                      size: 16),
+                  label: Text(_isRunning ? 'STOP' : 'RUN',
+                      style: const TextStyle(fontSize: 13)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _isRunning ? Colors.red : Colors.green,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
                 ),
                 // SAVE
@@ -1011,7 +1026,8 @@ class _DieuKhienWidgetState extends State<DieuKhienWidget> {
                   label: const Text('Save', style: TextStyle(fontSize: 13)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
                 ),
                 // OPEN
@@ -1021,7 +1037,8 @@ class _DieuKhienWidgetState extends State<DieuKhienWidget> {
                   label: const Text('Open', style: TextStyle(fontSize: 13)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
                 ),
               ],
@@ -1061,8 +1078,8 @@ class _DieuKhienWidgetState extends State<DieuKhienWidget> {
         controls: controls,
         child: Row(children: [
           DropdownButton<String>(
-            value: cmd.target,
-            items: [..._dPins, ..._variables.keys]
+            value: ( {..._sensors, ..._variables.keys}.contains(cmd.target) ) ? cmd.target : _sensors.first,
+            items: {..._sensors, ..._variables.keys}
                 .map((t) => DropdownMenuItem(value: t, child: Text(t)))
                 .toList(),
             onChanged: (v) => setState(() => cmd.target = v ?? 'D3'),
@@ -1104,8 +1121,8 @@ class _DieuKhienWidgetState extends State<DieuKhienWidget> {
         controls: controls,
         child: Row(children: [
           DropdownButton<String>(
-            value: cmd.target,
-            items: _dPins
+            value: ( {..._sensors, ..._variables.keys}.contains(cmd.target) ) ? cmd.target : _sensors.first,
+            items: {..._sensors, ..._variables.keys}
                 .map((t) => DropdownMenuItem(value: t, child: Text(t)))
                 .toList(),
             onChanged: (v) => setState(() => cmd.target = v ?? 'D3'),
@@ -1659,16 +1676,22 @@ class _ExpressionBuilderState extends State<ExpressionBuilder> {
                 _addOperand(o);
               }
             },
-            itemBuilder: (ctx) => [
-              ...widget.sensors
-                  .map((s) => PopupMenuItem(value: s, child: Text(s))),
-              ...widget.variables
+            itemBuilder: (ctx) {
+              final allSensors = {
+                ...widget.sensors,
+                ...globals.SodoCambienList.map((c) => c.tenCambien)
+              }.toList();
+              return [
+                ...allSensors
+                    .map((s) => PopupMenuItem(value: s, child: Text(s))),
+                ...widget.variables
                   .map((v) => PopupMenuItem(value: v, child: Text(v))),
-              const PopupMenuItem(value: '0', child: Text("0")),
-              const PopupMenuItem(value: '1', child: Text("1")),
-              const PopupMenuItem(
-                  value: 'INPUT_NUMBER', child: Text("Nhập số...")),
-            ],
+                const PopupMenuItem(value: '0', child: Text("0")),
+                const PopupMenuItem(value: '1', child: Text("1")),
+                const PopupMenuItem(
+                    value: 'INPUT_NUMBER', child: Text("Nhập số...")),
+              ];
+            },
             child: const Icon(Icons.add_circle, color: Colors.green),
           ),
           PopupMenuButton<String>(

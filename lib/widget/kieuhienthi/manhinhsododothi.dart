@@ -5,9 +5,14 @@ import 'package:mview/Model/cambienhienthi.dart';
 import 'package:mview/ultis/listcambien.dart' as globals;
 
 class SodoDothi extends StatelessWidget {
-  const SodoDothi({super.key, required this.streamCambien});
+  const SodoDothi({
+    super.key,
+    required this.streamCambien,
+    required this.listDeviceSelected,
+  });
 
   final Stream<CambienHienthi> streamCambien;
+  final List<dynamic> listDeviceSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -17,14 +22,20 @@ class SodoDothi extends StatelessWidget {
         width: double.infinity,
         child: ListviewSodoDothi(
           streamCambien: streamCambien,
+          listDeviceSelected: listDeviceSelected,
         ));
   }
 }
 
 class ListviewSodoDothi extends StatefulWidget {
-  const ListviewSodoDothi({super.key, required this.streamCambien});
+  const ListviewSodoDothi({
+    super.key,
+    required this.streamCambien,
+    required this.listDeviceSelected,
+  });
 
   final Stream<CambienHienthi> streamCambien;
+  final List<dynamic> listDeviceSelected;
 
   @override
   State<ListviewSodoDothi> createState() => _ListviewSodoDothiState();
@@ -60,7 +71,7 @@ class _ListviewSodoDothiState extends State<ListviewSodoDothi> {
 
   @override
   void initState() {
-    listCambiendothi = [];
+    listCambiendothi = widget.listDeviceSelected.whereType<CambienHienthi>().toList();
     // f
     _subscriptionCambien =
         widget.streamCambien.listen((CambienHienthi cambien) {

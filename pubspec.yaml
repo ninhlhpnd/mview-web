@@ -104,6 +104,8 @@ flutter:
     - assets/bocuc/bocuc3.png
     - assets/bocuc/bocuc4.png
     - assets/icons/bdkdakenh.jpg
+    - assets/icons/acceleration.png
+    - assets/icons/altitude.png
 flutter_launcher_icons:
   android: true
   ios: true

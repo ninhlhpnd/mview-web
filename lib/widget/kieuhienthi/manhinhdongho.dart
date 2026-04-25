@@ -7,22 +7,39 @@ import 'package:mview/Model/cambienhienthi.dart';
 import 'package:mview/Model/dulieucambien.dart';
 
 class ManhinhDongho extends StatelessWidget {
-  const ManhinhDongho({super.key, required this.streamDulieu, required this.streamCambien});
+  const ManhinhDongho({
+    super.key,
+    required this.streamDulieu,
+    required this.streamCambien,
+    required this.listDeviceSelected,
+  });
   final Stream<DulieuCB> streamDulieu;
   final Stream<CambienHienthi> streamCambien;
+  final List<dynamic> listDeviceSelected;
   @override
   Widget build(BuildContext context) {
-    return SpeedometerScreen(streamCambien: streamCambien, streamDulieu: streamDulieu);
+    return SpeedometerScreen(
+      streamCambien: streamCambien,
+      streamDulieu: streamDulieu,
+      listDeviceSelected: listDeviceSelected,
+    );
   }
 }
 
 class SpeedometerScreen extends StatefulWidget {
-  /// Creates the instance of MyHomePage
-  const SpeedometerScreen({super.key, this.minValue = 0, this.maxValue = 120, required this.streamDulieu, required this.streamCambien});
+  const SpeedometerScreen({
+    super.key,
+    this.minValue = 0,
+    this.maxValue = 120,
+    required this.streamDulieu,
+    required this.streamCambien,
+    required this.listDeviceSelected,
+  });
   final double maxValue;
   final double minValue;
   final Stream<DulieuCB> streamDulieu;
   final Stream<CambienHienthi> streamCambien;
+  final List<dynamic> listDeviceSelected;
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
@@ -38,6 +55,20 @@ class _MyHomePageState extends State<SpeedometerScreen> {
   late String donvi="";
   @override
   void initState() {
+    if (widget.listDeviceSelected.isNotEmpty) {
+      final cambien = widget.listDeviceSelected.first;
+      if (cambien is CambienHienthi) {
+        tencambien = cambien.name;
+        minValue = (cambien.daido != null && cambien.daido!.isNotEmpty)
+            ? cambien.daido![0]
+            : widget.minValue;
+        maxValue = (cambien.daido != null && cambien.daido!.isNotEmpty)
+            ? cambien.daido![1]
+            : widget.maxValue;
+        doPhanGiai = cambien.dophangiai ?? 2;
+        donvi = cambien.donvi ?? "";
+      }
+    }
     _subscriptionCambien = widget.streamCambien.listen((CambienHienthi cambien){
       setState(() {
         tencambien = cambien.name;

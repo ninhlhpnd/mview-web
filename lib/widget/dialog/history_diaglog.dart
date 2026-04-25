@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:universal_ble/universal_ble.dart';   // ✅ đổi thư viện
+import 'package:permission_handler/permission_handler.dart';
+
 import 'package:get_storage/get_storage.dart';
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
@@ -94,11 +96,52 @@ class _HistoryDialogContentState extends State<HistoryDialogContent> {
     required Set<int> selectedIndexes,
   }) async {
     // Hiển thị hộp thoại nhập tên file
-    final TextEditingController fileNameController = TextEditingController();
-    final fileName = await showFileNameDialog(context);
+    String? fileName;
+    while (true) {
+      fileName = await showFileNameDialog(context);
 
-    // Nếu người dùng bấm "Hủy" hoặc không nhập gì thì không xuất
-    if (fileName == null || fileName.isEmpty) return;
+      // Nếu người dùng bấm "Hủy" hoặc không nhập gì thì không xuất
+      if (fileName == null || fileName.isEmpty) return;
+      
+      // Xác định đường dẫn file sẽ lưu
+      String targetPath;
+      if (Platform.isAndroid) {
+        final publicDir = Directory('/storage/emulated/0/Documents');
+        targetPath = '${publicDir.path}/$fileName.csv';
+      } else {
+        final dir = await getApplicationDocumentsDirectory();
+        targetPath = '${dir.path}/$fileName.csv';
+      }
+      
+      // Kiểm tra xem file đã tồn tại hay chưa
+      if (await File(targetPath).exists()) {
+        final bool? overwrite = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('File đã tồn tại'),
+            content: Text('File "$fileName.csv" đã tồn tại. Bạn muốn ghi đè hay đổi tên khác?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false), // Đổi tên
+                child: Text('Đổi tên'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true), // Ghi đè
+                child: Text('Ghi đè', style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          ),
+        );
+        
+        if (overwrite == true) {
+          break; // Tiếp tục ghi đè
+        } else {
+          continue; // Lặp lại để chọn tên khác
+        }
+      } else {
+        break; // File chưa tồn tại, có thể lưu tiếp
+      }
+    }
 
     final selectedData = selectedIndexes.isEmpty
         ? historyList
@@ -167,8 +210,49 @@ class _HistoryDialogContentState extends State<HistoryDialogContent> {
     final filePath = '${dir.path}/$fileName.csv';
     final file = File(filePath);
     await file.writeAsString(csv);
-    if (Platform.isIOS || Platform.isMacOS) {
-      await Share.shareXFiles([XFile(filePath)], text: 'Xuất dữ liệu CSV');
+
+
+
+
+
+    // Sao chép tới thư mục công cộng (Documents) trên Android
+    if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
+      if (Platform.isAndroid) {
+        await Permission.storage.request();
+        // Cố gắng ghi vào thư mục Documents chung của thiết bị
+        final publicDir = Directory('/storage/emulated/0/Documents');
+        if (!await publicDir.exists()) {
+          await publicDir.create(recursive: true);
+        }
+        final publicPath = '${publicDir.path}/$fileName.csv';
+        await file.copy(publicPath);
+        
+        // Lưu đường dẫn vào GetStorage để mở lại sau
+        final List<String> saved = (box.read<List<dynamic>>('saved_csv_paths')?.cast<String>() ?? []);
+        if (!saved.contains(publicPath)) saved.add(publicPath);
+        await box.write('saved_csv_paths', saved);
+        
+        // Thông báo đường dẫn đã lưu cho người dùng
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('File CSV đã được lưu tại: $publicPath'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      } else {
+        // Fallback cho iOS / macOS
+        final publicPath = filePath;
+        final List<String> saved = (box.read<List<dynamic>>('saved_csv_paths')?.cast<String>() ?? []);
+        if (!saved.contains(publicPath)) saved.add(publicPath);
+        await box.write('saved_csv_paths', saved);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('File CSV đã được lưu tại: $publicPath'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
     }
 
     // Nếu đang chạy trên Windows, thông báo đường dẫn
@@ -185,7 +269,10 @@ class _HistoryDialogContentState extends State<HistoryDialogContent> {
 
 
   Future<List<Map<String, dynamic>>> parseCsvToHistoryList(String csvContent) async {
-    final csvData = const CsvToListConverter().convert(csvContent);
+    List<List<dynamic>> csvData = const CsvToListConverter().convert(csvContent);
+    if (csvData.isNotEmpty && csvData[0].length == 1 && csvData[0][0].toString().contains(';')) {
+      csvData = const CsvToListConverter(fieldDelimiter: ';').convert(csvContent);
+    }
 
     if (csvData.length < 2) return [];
 
@@ -240,21 +327,28 @@ class _HistoryDialogContentState extends State<HistoryDialogContent> {
       Map<String, dynamic> thietbiMap = {};
 
       for (String colHeader in deviceCols) {
-        final reg = RegExp(r'^(.*?) \((.*?)\)$');
-        final match = reg.firstMatch(colHeader);
-        if (match == null) continue;
+        String trimmedHeader = colHeader.trim();
+        if (trimmedHeader.isEmpty) continue;
 
-        final deviceName = match.group(1) ?? '';
-        final donVi = match.group(2) ?? '';
+        String deviceName = trimmedHeader;
+        String donVi = '';
+        final lastOpen = trimmedHeader.lastIndexOf('(');
+        final lastClose = trimmedHeader.lastIndexOf(')');
+        if (lastOpen != -1 && lastClose != -1 && lastClose > lastOpen) {
+          deviceName = trimmedHeader.substring(0, lastOpen).trim();
+          donVi = trimmedHeader.substring(lastOpen + 1, lastClose).trim();
+        }
 
         final colIndex = runStartIndex + 1 + deviceCols.indexOf(colHeader); // ✅ SỬA Ở ĐÂY
 
         // Ép kiểu dữ liệu thành double
         List<double> values = [];
         for (int row = 2; row < csvData.length; row++) {
+          if (colIndex >= csvData[row].length) continue;
           final raw = csvData[row][colIndex];
           if (raw != null && raw.toString().trim().isNotEmpty) {
-            values.add(double.tryParse(raw.toString()) ?? 0.0);
+            String valStr = raw.toString().trim().replaceAll(',', '.');
+            values.add(double.tryParse(valStr) ?? 0.0);
           }
         }
         thietbiMap[deviceName] = {
@@ -343,42 +437,65 @@ class _HistoryDialogContentState extends State<HistoryDialogContent> {
                       icon: Icons.folder_open,
                       label: 'Mở',
                       onTap: () async {
-                        final result = await FilePicker.platform.pickFiles(
-                          type: FileType.custom,
-                          allowedExtensions: ['csv'],
-                        );
+                        // Kiểm tra danh sách file CSV đã lưu và lọc các file còn tồn tại
+                        final List<String> rawSavedPaths = (box.read<List<dynamic>>('saved_csv_paths')?.cast<String>() ?? []);
+                        final List<String> savedPaths = [];
+                        for (String p in rawSavedPaths) {
+                          if (await File(p).exists()) savedPaths.add(p);
+                        }
+                        if (savedPaths.length != rawSavedPaths.length) {
+                          await box.write('saved_csv_paths', savedPaths); // cập nhật lại danh sách nếu có file bị xóa
+                        }
 
-                        if (result != null && result.files.single.path != null) {
+                        String? chosenPath;
+                        if (savedPaths.isNotEmpty) {
+                          // Hiển thị dialog chọn file đã lưu
+                          chosenPath = await showDialog<String>(
+                            context: context,
+                            builder: (_) => SimpleDialog(
+                              title: const Text('Chọn file CSV đã lưu'),
+                              children: savedPaths.map((p) {
+                                final parts = p.split('/');
+                                final displayName = parts.length >= 2 
+                                  ? '${parts[parts.length - 2]}/${parts.last}' 
+                                  : parts.last;
+                                return SimpleDialogOption(
+                                  onPressed: () => Navigator.pop(_, p),
+                                  child: Text(displayName),
+                                );
+                              }).toList(),
+                            ),
+                          );
+                        }
+                        // Nếu không có file đã lưu hoặc người dùng hủy, fallback tới FilePicker
+                        if (chosenPath == null) {
+                          final result = await FilePicker.platform.pickFiles(
+                            type: FileType.custom,
+                            allowedExtensions: ['csv'],
+                          );
+                          if (result != null && result.files.single.path != null) {
+                            chosenPath = result.files.single.path!;
+                          }
+                        }
+
+                        if (chosenPath != null) {
+                          // Ngắt kết nối các thiết bị BLE hiện tại
                           List<BleDevice> devices = globals.SodoCambienList
                               .map((sodo) => sodo.bluetoothDevice)
-                              .toSet() // loại bỏ trùng
+                              .toSet()
                               .toList();
-
                           globals.SodoCambienList.clear();
                           for (var device in devices) {
                             try {
-                              // Connect to the device
                               await device.disconnect();
-                              if (mounted) {
-                                for (int i = 0; i < globals.SodoCambienList.length; i++) {
-                                  if (device == globals.SodoCambienList[i].bluetoothDevice) {
-                                    globals.SodoCambienList.removeAt(i);
-                                    break;
-                                  }
-                                }
-                              }
                             } catch (e) {
-                              // Handle connection errors
                               print('Error disconnect to device: $e');
                             }
                           }
 
-                          final file = File(result.files.single.path!);
+                          final file = File(chosenPath);
                           final content = await file.readAsString();
-
                           final parsedHistoryList = await parseCsvToHistoryList(content);
-
-                          // Gán lại biến toàn cục hoặc cập nhật trạng thái:
                           setState(() {
                             historyList = parsedHistoryList;
                             selectedIndexes = {};

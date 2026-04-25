@@ -20,14 +20,23 @@ class StemSuaChua extends StatefulWidget {
 
 class _StemSuaChuaState extends State<StemSuaChua> {
   Map<String, double> currentValues = {};
+  late StreamSubscription<DulieuCB> _subscription;
 
   @override
   void initState() {
     super.initState();
+    _subscription = widget.stream.listen((dulieu) {
+      if (dulieu.tenCambien.isNotEmpty && dulieu.giaTri.isNotEmpty) {
+        setState(() {
+          currentValues[dulieu.tenCambien] = dulieu.giaTri.last;
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
+    _subscription.cancel();
     super.dispose();
   }
 
@@ -37,7 +46,7 @@ class _StemSuaChuaState extends State<StemSuaChua> {
       appBar: AppBar(
         backgroundColor: Colors.blue, // màu nền cho tiêu đề
         toolbarHeight: 20, // thấp hơn mặc định
-        title:  Text(
+        title: Text(
           widget.tenbaihoc,
           style: TextStyle(
             fontSize: 15, // nhỏ hơn
@@ -70,12 +79,13 @@ class _StemSuaChuaState extends State<StemSuaChua> {
       ),
     );
   }
+
   void sendCommand(Map<String, List<int>> commands) {
     print("=== SEND COMMANDS DETAIL ===");
 
     for (var entry in commands.entries) {
-      String cong = entry.key;       // "D3"
-      List<int> data = entry.value;  // [lenh, value]
+      String cong = entry.key; // "D3"
+      List<int> data = entry.value; // [lenh, value]
 
       int lenh = data[0];
       int value = data[1];

@@ -26,6 +26,7 @@ class ManhinhDothi extends StatelessWidget {
     required this.streamCambien,
     required this.streamControllerDiemcat,
     required this.streamControllerXoaCambien,
+    required this.listDeviceSelected,
   });
 
   final Stream<DulieuCB> stream;
@@ -34,6 +35,7 @@ class ManhinhDothi extends StatelessWidget {
   final StreamController<Map<String, Map<String, dynamic>>>
       streamControllerDiemcat;
   final StreamController<bool> streamControllerXoaCambien;
+  final List<dynamic> listDeviceSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +45,7 @@ class ManhinhDothi extends StatelessWidget {
       streamPhantich: streamPhantich,
       streamControllerDiemcat: streamControllerDiemcat,
       streamControllerXoaCambien: streamControllerXoaCambien,
+      listDeviceSelected: listDeviceSelected,
     );
   }
 }
@@ -55,6 +58,7 @@ class LineChart extends StatefulWidget {
     required this.streamPhantich,
     required this.streamControllerDiemcat,
     required this.streamControllerXoaCambien,
+    required this.listDeviceSelected,
   });
 
   final Stream<DulieuCB> stream;
@@ -63,6 +67,7 @@ class LineChart extends StatefulWidget {
   final StreamController<Map<String, Map<String, dynamic>>>
       streamControllerDiemcat;
   final StreamController<bool> streamControllerXoaCambien;
+  final List<dynamic> listDeviceSelected;
 
   @override
   State<LineChart> createState() => _LineChartState();
@@ -84,13 +89,18 @@ class _LineChartState extends State<LineChart> {
   bool _chartReady = false;
   List<_BestFitLine> _bestFitLines = [];
 
+  final List<String> _sensorSelectionOrder = [];
+  final Map<String, CambienHienthi> _cambienInfo = {};
+  double _yMinData = -1.0;
+  double _yMaxData = 1.0;
+  double? _centerY;
+
   // rendering / buffering
   static const int _maxPoints = 20000; // hard cap; but windowed by _windowSize
   static const int _windowSizeDefault =
       1000; // number of samples visible by default
   // int _windowSize = _windowSizeDefault;
   double _windowSize = 1000;
-  double _maxValueAbs = 1.0;
 
   // view transform in data coordinates
   double _centerIndex = 0; // center x index shown (in sample units)
@@ -102,6 +112,33 @@ class _LineChartState extends State<LineChart> {
   final bool debugPrints = false;
 
   bool _autoFollow = true; // tự động cuộn theo dữ liệu mới
+  void _updateYAxisRange() {
+    if (_sensorSelectionOrder.isEmpty) {
+      _yMinData = -1.0;
+      _yMaxData = 1.0;
+      return;
+    }
+    String newestId = _sensorSelectionOrder.last;
+    CambienHienthi? newestCB = _cambienInfo[newestId];
+    if (newestCB != null) {
+      try {
+        var matched = globals.cambiens.firstWhere(
+            (c) => c.name.toLowerCase() == newestCB.name.toLowerCase());
+        final newYMin = matched.daido![0].toDouble();
+        final newYMax = matched.daido![1].toDouble();
+        if (newYMin != _yMinData || newYMax != _yMaxData) {
+          _yMinData = newYMin;
+          _yMaxData = newYMax;
+          _centerY = (_yMinData + _yMaxData) / 2;
+        }
+      } catch (e) {
+        _yMinData = -1.0;
+        _yMaxData = 1.0;
+        _centerY = 0.0;
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -112,6 +149,8 @@ class _LineChartState extends State<LineChart> {
       if (_sensorData.containsKey(cambien.id)) {
         final removedColor = _colors.remove(cambien.id);
         _sensorData.remove(cambien.id);
+        _cambienInfo.remove(cambien.id);
+        _sensorSelectionOrder.remove(cambien.id);
         if (removedColor != null) globals.listColorCambien.remove(removedColor);
 
         // notify SodoDothi: color null means delete
@@ -124,9 +163,21 @@ class _LineChartState extends State<LineChart> {
       } else {
         final color = _findFirstUnusedColor();
         _sensorData[cambien.id] = [];
+        if (globals.historyViewMode.value == true && globals.historySelected != null) {
+          if (globals.historySelected['thietbi'] != null &&
+              globals.historySelected['thietbi'].containsKey(cambien.id)) {
+            List<dynamic> rawData = globals.historySelected['thietbi'][cambien.id]['data'];
+            _sensorData[cambien.id]!.addAll(rawData.map((e) => (e as num).toDouble()).toList());
+          }
+        }
+
+        _cambienInfo[cambien.id] = cambien;
         _colors[cambien.id] = color;
-        if (!globals.listColorCambien.contains(color))
+        _sensorSelectionOrder.remove(cambien.id);
+        _sensorSelectionOrder.add(cambien.id);
+        if (!globals.listColorCambien.contains(color)) {
           globals.listColorCambien.add(color);
+        }
 
         // notify SodoDothi: include color
         _streamCambienLocal.add(CambienHienthi(
@@ -136,20 +187,56 @@ class _LineChartState extends State<LineChart> {
           color: color,
         ));
       }
+      _updateYAxisRange();
       // keep center index sane
       _normalizeCenterAfterChange();
       if (debugPrints)
         print(
             'SENSOR TOGGLE: ${cambien.id} sensors=${_sensorData.keys.length}');
+      if (mounted) setState(() {});
     });
+
+    // Initialize with selected sensors
+    for (var cambien in widget.listDeviceSelected) {
+      if (cambien is CambienHienthi) {
+        _sensorData[cambien.id] = [];
+        _cambienInfo[cambien.id] = cambien;
+        final color = cambien.color ?? _findFirstUnusedColor();
+        _colors[cambien.id] = color;
+        if (!_sensorSelectionOrder.contains(cambien.id)) {
+          _sensorSelectionOrder.add(cambien.id);
+        }
+        if (!globals.listColorCambien.contains(color)) {
+          globals.listColorCambien.add(color);
+        }
+      }
+    }
+    _updateYAxisRange();
 
     // listen data stream: only buffer values here
     _dataSubscription = widget.stream.listen((dulieu) {
       try {
         if (dulieu.datLai) {
-          // reset
-          _sensorData.forEach((_, list) => list.clear());
-          _maxValueAbs = 1.0;
+          if (globals.historyViewMode.value == true) {
+            _sensorData.forEach((key, list) {
+              list.clear();
+              if (globals.historySelected != null &&
+                  globals.historySelected['thietbi'] != null &&
+                  globals.historySelected['thietbi'].containsKey(key)) {
+                List<dynamic> rawData = globals.historySelected['thietbi'][key]['data'];
+                list.addAll(rawData.map((e) => (e as num).toDouble()).toList());
+              }
+            });
+            _centerIndex = _getGlobalMaxIndex() / 2;
+            _windowSize = max(100.0, _getGlobalMaxIndex());
+            _updateYAxisRange();
+            if (mounted) setState(() {});
+          } else {
+            // reset normally
+            _sensorData.forEach((_, list) => list.clear());
+            _centerIndex = 0;
+            if (mounted) setState(() {});
+          }
           return;
         }
         _onNewData(dulieu.id, dulieu.giaTri);
@@ -181,13 +268,21 @@ class _LineChartState extends State<LineChart> {
 
 // mỗi lần có dữ liệu mới
   void _onNewData(String id, List<double> values) {
-    final list = _sensorData.putIfAbsent(id, () => []);
-    list.addAll(values);
+    // Chỉ nhận dữ liệu từ các cảm biến đã được thêm vào
+    if (!_sensorData.containsKey(id)) return;
+    
+    final cb = _cambienInfo[id];
+    List<double> processedValues = values;
+    if (cb != null && cb.heso != null && cb.heso!.isNotEmpty) {
+      double a = cb.heso![0];
+      double b = cb.heso!.length > 1 ? cb.heso![1] : 0.0;
+      processedValues = values.map((v) => v * a + b).toList();
+    }
+    
+    final list = _sensorData[id]!;
+    list.addAll(processedValues);
     if (list.length > _maxPoints) {
       list.removeRange(0, list.length - _maxPoints);
-    }
-    for (final v in values) {
-      if (v.abs() > _maxValueAbs) _maxValueAbs = v.abs();
     }
 
     // nếu đang auto-follow → trượt theo dữ liệu
@@ -202,7 +297,7 @@ class _LineChartState extends State<LineChart> {
 
   // ---------------- Gesture ------------------
   Offset? _lastFocal;
-  double? _lastScale;
+  double _lastScale = 1.0;
 
   void _onScaleStart(ScaleStartDetails d) {
     _lastFocal = d.focalPoint;
@@ -211,31 +306,89 @@ class _LineChartState extends State<LineChart> {
   }
 
   void _onScaleUpdate(ScaleUpdateDetails d, Size size) {
+    if (_lastFocal == null) return;
+    
     if (_mode == Mode.pan) {
       // Pan ngang
       final dx = d.focalPoint.dx - _lastFocal!.dx;
       final samplesPerPixel = _windowSize / size.width;
       _centerIndex -= dx * samplesPerPixel;
-      _centerIndex = _centerIndex.clamp(0, _getGlobalMaxIndex().toDouble());
+      _centerIndex = _centerIndex.clamp(0.0, _getGlobalMaxIndex());
+
+      // Pan doc
+      final dy = d.focalPoint.dy - _lastFocal!.dy;
+      double innerH = size.height - 40; // top: 10, bottom: 30
+      if (innerH > 0) {
+        double zspan = ((_yMaxData - _yMinData) / 2) * _zoomY;
+        double dyVal = dy / innerH * (2 * zspan);
+        _centerY = (_centerY ?? (_yMinData + _yMaxData) / 2) + dyVal;
+      }
+
+      _lastFocal = d.focalPoint;
     } else if (_mode == Mode.zoomX) {
-      final scaleChange = d.scale / (_lastScale ?? 1.0);
-      final zoomFactor = pow(scaleChange, 3);
-      _windowSize =
-          (_windowSize / zoomFactor).clamp(100, _maxPoints.toDouble());
+      // Scale ngang lấy tâm focalPoint
+      double innerW = size.width - 70; // padding: left 50, right 20
+      double v = 0.5;
+      if (innerW > 0) {
+        v = (d.focalPoint.dx - 50) / innerW;
+        v = v.clamp(0.0, 1.0);
+      }
+      double curCenterIdx = _centerIndex;
+      double valAtFocal = curCenterIdx + (v - 0.5) * _windowSize;
+
+      if (d.scale != 1.0) {
+        final scaleChange = d.scale / _lastScale;
+        // _windowSize tỷ lệ nghịch với scale: scale to -> window nhỏ (zoom in)
+        _windowSize = (_windowSize / scaleChange).clamp(100.0, _maxPoints.toDouble());
+        _lastScale = d.scale;
+      } else {
+        // Hỗ trợ drag chuột hoặc 1 ngón để zoom X
+        final dx = d.focalPoint.dx - _lastFocal!.dx;
+        // Kéo qua phải (dx > 0) -> zoom in (_windowSize giảm)
+        // Hệ số 0.03 giúp lướt nhẹ hơn
+        final zoomFactor = 1.0 + (dx * 0.03);
+        _windowSize = (_windowSize / zoomFactor).clamp(100.0, _maxPoints.toDouble());
+        _lastFocal = d.focalPoint;
+      }
+
+      _centerIndex = valAtFocal - (v - 0.5) * _windowSize;
+      _centerIndex = _centerIndex.clamp(0.0, _getGlobalMaxIndex());
     } else if (_mode == Mode.zoomY) {
-      final scaleChange = d.scale / (_lastScale ?? 1.0);
-      final zoomFactor = pow(scaleChange, 3);
-      _zoomY = (_zoomY / zoomFactor).clamp(0.2, 10.0);
+      // Scale dọc lấy tâm focalPoint
+      double innerH = size.height - 40;
+      double u = 0.0;
+      if (innerH > 0) {
+        u = 1 - 2 * (d.focalPoint.dy - 10) / innerH;
+        u = u.clamp(-1.0, 1.0);
+      }
+      double curCenterY = _centerY ?? (_yMinData + _yMaxData) / 2;
+      double zspan = ((_yMaxData - _yMinData) / 2) * _zoomY;
+      double valAtFocal = curCenterY + u * zspan;
+
+      if (d.scale != 1.0) {
+        final scaleChange = d.scale / _lastScale;
+        _zoomY = (_zoomY * scaleChange).clamp(0.01, 10.0);
+        _lastScale = d.scale;
+      } else {
+        // Hỗ trợ drag chuột hoặc 1 ngón để zoom Y
+        final dy = d.focalPoint.dy - _lastFocal!.dy;
+        // Kéo lên trên (dy < 0) -> zoom in (_zoomY tăng)
+        // Hệ số 0.03 giúp nhạy hơn
+        final zoomFactor = 1.0 - (dy * 0.03);
+        _zoomY = (_zoomY * zoomFactor).clamp(0.01, 10.0);
+        _lastFocal = d.focalPoint;
+      }
+
+      double zspan_new = ((_yMaxData - _yMinData) / 2) * _zoomY;
+      _centerY = valAtFocal - u * zspan_new;
     }
 
-    _lastScale = d.scale;
-    _lastFocal = d.focalPoint;
     setState(() {});
   }
 
   void _onScaleEnd(ScaleEndDetails d) {
     _lastFocal = null;
-    _lastScale = null;
+    _lastScale = 1.0;
   }
 
 // nút reset
@@ -245,6 +398,7 @@ class _LineChartState extends State<LineChart> {
       _zoomY = 1.0;
       _windowSize = 1000;
       _centerIndex = _getGlobalMaxIndex() - _windowSize / 2;
+      _centerY = (_yMinData + _yMaxData) / 2;
     });
   }
 
@@ -381,14 +535,41 @@ class _LineChartState extends State<LineChart> {
               onPointerSignal: (event) {
                 if (event is PointerScrollEvent) {
                   setState(() {
+                    _autoFollow = false; // Ngừng chạy theo data mới khi cuộn
                     final delta = event.scrollDelta.dy;
                     if (_mode == Mode.zoomX) {
-                      // Cuộn chuột để zoom trục X
-                      _windowSize = (_windowSize / (1 + delta * 0.001))
+                      // Cuộn chuột để zoom trục X lấy tâm ngón tay
+                      double innerW = size.width - 70;
+                      double v = 0.5;
+                      if (innerW > 0) {
+                        v = (event.localPosition.dx - 50) / innerW;
+                        v = v.clamp(0.0, 1.0);
+                      }
+                      double curCenterIdx = _centerIndex;
+                      double valAtFocal = curCenterIdx + (v - 0.5) * _windowSize;
+
+                      // Hệ số 0.003 để cuộn chuột nhạy hơn bản 0.001
+                      _windowSize = (_windowSize / (1 + delta * 0.003))
                           .clamp(100, _maxPoints.toDouble());
+                          
+                      _centerIndex = valAtFocal - (v - 0.5) * _windowSize;
+                      _centerIndex = _centerIndex.clamp(0.0, _getGlobalMaxIndex());
                     } else if (_mode == Mode.zoomY) {
                       // Cuộn chuột để zoom trục Y
-                      _zoomY = (_zoomY / (1 + delta * 0.001)).clamp(0.2, 10.0);
+                      double innerH = size.height - 40;
+                      if (innerH > 0) {
+                        double u = 1 - 2 * (event.localPosition.dy - 10) / innerH;
+                        u = u.clamp(-1.0, 1.0);
+                        double curCenterY = _centerY ?? (_yMinData + _yMaxData) / 2;
+                        double zspan = ((_yMaxData - _yMinData) / 2) * _zoomY;
+                        double valAtFocal = curCenterY + u * zspan;
+
+                        // Hệ số 0.003
+                        _zoomY = (_zoomY / (1 + delta * 0.003)).clamp(0.01, 10.0);
+
+                        double zspan_new = ((_yMaxData - _yMinData) / 2) * _zoomY;
+                        _centerY = valAtFocal - u * zspan_new;
+                      }
                     } else if (_mode == Mode.pan) {
                       // Pan ngang khi đang ở mode pan
                       final samplesPerPixel = _windowSize / size.width;
@@ -413,7 +594,9 @@ class _LineChartState extends State<LineChart> {
                   painter: _FastChartPainter(
                     data: _sensorData,
                     colors: _colors,
-                    maxAbs: _maxValueAbs,
+                    yMinData: _yMinData,
+                    yMaxData: _yMaxData,
+                    centerY: _centerY ?? (_yMinData + _yMaxData) / 2,
                     visibleRangeProvider: () => _visibleRange(size.width),
                     windowSizeProvider: () => _windowSize,
                     zoomY: _zoomY,
@@ -430,7 +613,10 @@ class _LineChartState extends State<LineChart> {
 
 
         // SodoDothi (list of sensors, receives from our local stream)
-        SodoDothi(streamCambien: _streamCambienLocal.stream),
+        SodoDothi(
+          streamCambien: _streamCambienLocal.stream,
+          listDeviceSelected: widget.listDeviceSelected,
+        ),
       ],
     );
   }
@@ -717,7 +903,9 @@ class _BestFitLine {
 class _FastChartPainter extends CustomPainter {
   final Map<String, List<double>> data;
   final Map<String, Color> colors;
-  final double maxAbs;
+  final double yMinData;
+  final double yMaxData;
+  final double centerY;
   final Range Function() visibleRangeProvider;
   final double Function() windowSizeProvider;
   final double zoomY;
@@ -730,7 +918,9 @@ class _FastChartPainter extends CustomPainter {
   _FastChartPainter({
     required this.data,
     required this.colors,
-    required this.maxAbs,
+    required this.yMinData,
+    required this.yMaxData,
+    required this.centerY,
     required this.visibleRangeProvider,
     required this.windowSizeProvider,
     required this.zoomY,
@@ -772,14 +962,18 @@ class _FastChartPainter extends CustomPainter {
     const int hTicks = 10;
 
     // Y axis ticks
+    final cy = centerY;
+    final zspan = ((yMaxData - yMinData) / 2) * zoomY;
+
     for (int i = 0; i <= vTicks; i++) {
       final y = topPadding + innerH * i / vTicks;
       final paint = (i % 1 == 0) ? majorGrid : minorGrid;
       canvas.drawLine(
           Offset(leftPadding, y), Offset(size.width - rightPadding, y), paint);
-      // label: compute value from top to bottom: max to -max
+      // label: compute value from top to bottom
       final double t = 1.0 - (i / vTicks);
-      final labelVal = ((t * 2 - 1) * maxAbs * zoomY).toStringAsFixed(2);
+      final double val = cy + (t * 2 - 1) * zspan;
+      final labelVal = val.toStringAsFixed(2);
       final tp = TextPainter(
           text: TextSpan(
               text: labelVal,
@@ -868,11 +1062,15 @@ class _FastChartPainter extends CustomPainter {
     }
 
 
-    // draw axis lines
     canvas.drawLine(Offset(leftPadding, topPadding),
         Offset(leftPadding, topPadding + innerH), axisPaint);
     canvas.drawLine(Offset(leftPadding, topPadding + innerH),
         Offset(size.width - rightPadding, topPadding + innerH), axisPaint);
+
+    // Xén vùng vẽ đồ thị để các điểm nằm ngoài mép bị ẩn đi thay vì dồn thành đường
+    canvas.save();
+    canvas.clipRect(Rect.fromLTRB(
+        leftPadding, topPadding, size.width - rightPadding, topPadding + innerH));
 
     // for each series draw decimated path
     final visibleStart = max(0, startIndex.floor());
@@ -887,6 +1085,7 @@ class _FastChartPainter extends CustomPainter {
           textDirection: TextDirection.ltr);
       tp.layout();
       tp.paint(canvas, Offset(leftPadding + 20, topPadding + 10));
+      canvas.restore(); // Sửa lỗi thiếu restore khi return sớm
       return;
     }
 
@@ -962,12 +1161,14 @@ class _FastChartPainter extends CustomPainter {
               mapY(maxV, innerH);
 
           // draw vertical line representing min..max in that pixel bin
-          canvas.drawLine(Offset(x, yMin), Offset(x, yMax), paintLine);
-        }
       }
+    }
 
-      // legend label (right side)
-      final tp = TextPainter(
+    // Kết thúc phần xén vùng vẽ đồ thị
+    canvas.restore();
+
+    // legend label (right side)
+    final tp = TextPainter(
         text: TextSpan(
             text: id.split(',').length > 1
                 ? id.split(',').sublist(1).join(',')
@@ -1087,10 +1288,13 @@ class _FastChartPainter extends CustomPainter {
     }
   }
 
-// thêm clamp để không vượt khung
+// Xoá clamp để cho điểm ra ngoài thì bị clipRect ẩn đi thay vì ép vào mép
   double mapY(double value, double innerH) {
-    final y = topPadding + (1 - ((value / (maxAbs * zoomY)) + 1) / 2) * innerH;
-    return y.clamp(topPadding, topPadding + innerH);
+    final cy = centerY;
+    final zspan = ((yMaxData - yMinData) / 2) * zoomY;
+    final u = (value - cy) / (zspan == 0 ? 1 : zspan);
+    final y = topPadding + (1 - (u + 1) / 2) * innerH;
+    return y;
   }
 
   int _maxDataLength() {

@@ -7,10 +7,15 @@ import 'package:mview/Model/dulieucambien.dart';
 import 'package:mview/ultis/listcambien.dart';
 
 class ManhinhSo extends StatelessWidget {
-  const ManhinhSo(
-      {super.key, required this.stream, required this.streamAddSensor});
+  const ManhinhSo({
+    super.key,
+    required this.stream,
+    required this.streamAddSensor,
+    required this. listDeviceSelected,
+  });
   final Stream<DulieuCB> stream;
   final Stream<CambienHienthi> streamAddSensor;
+  final List<dynamic> listDeviceSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +33,7 @@ class ManhinhSo extends StatelessWidget {
                   ten: 'Cảm Biến',
                   fontSize: 15,
                   streamCambien: streamAddSensor,
+                  listDeviceSelected: listDeviceSelected,
                 )),
           ),
           Expanded(
@@ -39,7 +45,8 @@ class ManhinhSo extends StatelessWidget {
                     giatri: 0.0,
                     fontSize: mediaQuery.size.height / 6,
                     stream: stream,
-                    streamAddSensor: streamAddSensor),
+                    streamAddSensor: streamAddSensor,
+                    listDeviceSelected: listDeviceSelected),
               ),
             ),
           ),
@@ -87,14 +94,17 @@ class ManhinhSo extends StatelessWidget {
 }
 
 class TenCambien extends StatefulWidget {
-  const TenCambien(
-      {super.key,
-      required this.ten,
-      required this.fontSize,
-      required this.streamCambien});
+  const TenCambien({
+    super.key,
+    required this.ten,
+    required this.fontSize,
+    required this.streamCambien,
+    required this.listDeviceSelected,
+  });
   final String ten;
   final double fontSize;
   final Stream<CambienHienthi> streamCambien;
+  final List<dynamic> listDeviceSelected;
 
   @override
   State<TenCambien> createState() => _TenCambienState();
@@ -117,6 +127,12 @@ class _TenCambienState extends State<TenCambien> {
 
   @override
   void initState() {
+    if (widget.listDeviceSelected.isNotEmpty) {
+      final cambien = widget.listDeviceSelected.first;
+      if (cambien is CambienHienthi) {
+        tenCB = cambien.name + " (${cambien.donvi})";
+      }
+    }
     _tencbSubcription = widget.streamCambien.listen((CambienHienthi cambien) {
       setState(() {
         tenCB = cambien.name + " (${cambien.donvi})";
@@ -126,16 +142,19 @@ class _TenCambienState extends State<TenCambien> {
 }
 
 class GiatriCambien extends StatefulWidget {
-  const GiatriCambien(
-      {super.key,
-      required this.giatri,
-      required this.fontSize,
-      required this.stream,
-      required this.streamAddSensor});
+  const GiatriCambien({
+    super.key,
+    required this.giatri,
+    required this.fontSize,
+    required this.stream,
+    required this.streamAddSensor,
+    required this.listDeviceSelected,
+  });
   final double giatri;
   final double fontSize;
   final Stream<DulieuCB> stream;
   final Stream<CambienHienthi> streamAddSensor;
+  final List<dynamic> listDeviceSelected;
   @override
   State<GiatriCambien> createState() => _GiatriCambienState();
 }
@@ -164,6 +183,15 @@ class _GiatriCambienState extends State<GiatriCambien> {
   @override
   void initState() {
     super.initState();
+    if (widget.listDeviceSelected.isNotEmpty) {
+      final cambien = widget.listDeviceSelected.first;
+      if (cambien is CambienHienthi) {
+        donvi = cambien.donvi ?? "";
+        heso = cambien.heso ?? [1, 0];
+        dophangiai = cambien.dophangiai ?? 2;
+        tenCambien = cambien.name;
+      }
+    }
     _subscription = widget.stream.listen((DulieuCB number) {
       if (tenCambien == number.tenCambien) {
         setState(() {

@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
@@ -23,17 +23,45 @@ class _StemNhaKinhState extends State<StemNhaKinh> {
   String? redPort = "D3";
   String? greenPort = "D4";
   String? bluePort = "D5";
-  
+
   bool _showDieuKhienLogic = false; // Biến trạng thái để chuyển đổi UI
   Map<String, double> _sensorValues = {}; // Khởi tạo map giá trị cảm biến
   StreamSubscription<DulieuCB>? _streamSubscription;
+
+  bool _isAutoRandomColor = false;
+  Timer? _randomColorTimer;
+
+  void _toggleAutoRandomColor(bool value) {
+    setState(() {
+      _isAutoRandomColor = value;
+    });
+    if (_isAutoRandomColor) {
+      _changeRandomColor();
+      _randomColorTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+        if (mounted) {
+          _changeRandomColor();
+        }
+      });
+    } else {
+      _randomColorTimer?.cancel();
+    }
+  }
+
+  void _changeRandomColor() {
+    final random = math.Random();
+    setState(() {
+      red = random.nextInt(256).toDouble();
+      green = random.nextInt(256).toDouble();
+      blue = random.nextInt(256).toDouble();
+    });
+  }
 
   Timer? _timer;
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       // ở đây bạn gửi dữ liệu đi
-      int rPort = sendData.pinMap[redPort] ?? 0;   // ✅ dùng pinMap từ bdk_helper
+      int rPort = sendData.pinMap[redPort] ?? 0; // ✅ dùng pinMap từ bdk_helper
       int gPort = sendData.pinMap[greenPort] ?? 0;
       int bPort = sendData.pinMap[bluePort] ?? 0;
       int redVal = red.toInt();
@@ -41,9 +69,19 @@ class _StemNhaKinhState extends State<StemNhaKinh> {
       int blueVal = blue.toInt();
       int lenh = 3;
       int len = 7;
-      List<int> frame = [0x02, len, lenh, rPort,redVal, gPort, greenVal, bPort, blueVal, 0xFF];
+      List<int> frame = [
+        0x02,
+        len,
+        lenh,
+        rPort,
+        redVal,
+        gPort,
+        greenVal,
+        bPort,
+        blueVal,
+        0xFF
+      ];
       sendData.writeDataToBDK(frame);
-
     });
   }
 
@@ -51,20 +89,13 @@ class _StemNhaKinhState extends State<StemNhaKinh> {
   void initState() {
     super.initState();
     _startTimer();
-    
-    // Lắng nghe stream để cập nhật _sensorValues
+
     _streamSubscription = widget.stream.listen((data) {
       if (mounted) {
         setState(() {
-          _sensorValues = {
-            // 'A1': data.A1 ?? 0,
-            // 'A2': data.A2 ?? 0,
-            // 'A3': data.A3 ?? 0,
-            // 'T4': data.T4 ?? 0,
-            // 'N4': data.N4 ?? 0,
-            // 'D1': data.D1 ?? 0,
-            // 'D2': data.D2 ?? 0,
-          };
+          if (data.tenCambien.isNotEmpty && data.giaTri.isNotEmpty) {
+            _sensorValues[data.tenCambien] = data.giaTri.last;
+          }
         });
       }
     });
@@ -73,6 +104,7 @@ class _StemNhaKinhState extends State<StemNhaKinh> {
   @override
   void dispose() {
     _timer?.cancel();
+    _randomColorTimer?.cancel();
     _streamSubscription?.cancel();
     super.dispose();
   }
@@ -81,8 +113,8 @@ class _StemNhaKinhState extends State<StemNhaKinh> {
     debugPrint("=== SEND COMMANDS DETAIL (NhaKinh) ===");
 
     for (var entry in commands.entries) {
-      String cong = entry.key;       // "D3"
-      List<int> data = entry.value;  // [lenh, value]
+      String cong = entry.key; // "D3"
+      List<int> data = entry.value; // [lenh, value]
 
       int lenh = data[0];
       int value = data[1];
@@ -120,9 +152,9 @@ class _StemNhaKinhState extends State<StemNhaKinh> {
                     "R",
                     Colors.red,
                     red,
-                        (v) => setState(() => red = v),
+                    (v) { if (!_isAutoRandomColor) setState(() => red = v); },
                     redPort,
-                        (v) => setState(() => redPort = v),
+                    (v) => setState(() => redPort = v),
                     dialSize,
                   ),
                 ),
@@ -131,9 +163,9 @@ class _StemNhaKinhState extends State<StemNhaKinh> {
                     "G",
                     Colors.green,
                     green,
-                        (v) => setState(() => green = v),
+                    (v) { if (!_isAutoRandomColor) setState(() => green = v); },
                     greenPort,
-                        (v) => setState(() => greenPort = v),
+                    (v) => setState(() => greenPort = v),
                     dialSize,
                   ),
                 ),
@@ -142,31 +174,54 @@ class _StemNhaKinhState extends State<StemNhaKinh> {
                     "B",
                     Colors.blue,
                     blue,
-                        (v) => setState(() => blue = v),
+                    (v) { if (!_isAutoRandomColor) setState(() => blue = v); },
                     bluePort,
-                        (v) => setState(() => bluePort = v),
+                    (v) => setState(() => bluePort = v),
                     dialSize,
                   ),
                 ),
               ],
             ),
           ),
-          Container(
-            height: isLandscape ? dialSize * 0.4 : dialSize * 0.6,
-            width: dialSize * 1.5,
-            margin: const EdgeInsets.only(top: 10, bottom: 10),
-            decoration: BoxDecoration(
-              color: Color.fromARGB(255, red.toInt(), green.toInt(), blue.toInt()),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.black26),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                height: isLandscape ? dialSize * 0.4 : dialSize * 0.6,
+                width: dialSize * 1.5,
+                margin: const EdgeInsets.only(top: 10, bottom: 10),
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(
+                      255, red.toInt(), green.toInt(), blue.toInt()),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.black26),
+                ),
+              ),
+              const SizedBox(width: 20),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    "Màu ngẫu nhiên",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                  Switch(
+                    value: _isAutoRandomColor,
+                    onChanged: _toggleAutoRandomColor,
+                  ),
+                ],
+              ),
+            ],
           ),
         ],
       ),
     );
 
     Widget mainContent = Center(
-      child: BocucBase(stream: widget.stream, wide: true,),
+      child: BocucBase(
+        stream: widget.stream,
+        wide: true,
+      ),
     );
 
     Widget rightPanel = Column(
@@ -212,14 +267,14 @@ class _StemNhaKinhState extends State<StemNhaKinh> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,   // màu nền cho tiêu đề
-        toolbarHeight: 20,              // thấp hơn mặc định
-        title:  Text(
+        backgroundColor: Colors.blue, // màu nền cho tiêu đề
+        toolbarHeight: 20, // thấp hơn mặc định
+        title: Text(
           widget.tenbaihoc,
           style: const TextStyle(
-            fontSize: 15,               // nhỏ hơn
+            fontSize: 15, // nhỏ hơn
             fontWeight: FontWeight.w600,
-            color: Colors.white,        // chữ trắng nổi bật
+            color: Colors.white, // chữ trắng nổi bật
           ),
         ),
         centerTitle: true,
@@ -240,9 +295,14 @@ class _StemNhaKinhState extends State<StemNhaKinh> {
     );
   }
 
-  Widget _buildDial(String label, Color color, double value,
-      ValueChanged<double> onChange, String? selectedPort,
-      ValueChanged<String?> onPortChange, double dialSize) {
+  Widget _buildDial(
+      String label,
+      Color color,
+      double value,
+      ValueChanged<double> onChange,
+      String? selectedPort,
+      ValueChanged<String?> onPortChange,
+      double dialSize) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [

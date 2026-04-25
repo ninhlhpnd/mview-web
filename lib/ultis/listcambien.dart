@@ -126,12 +126,13 @@ List<Cambien> cambiens = [
     id: 'Current',
     name: 'Dòng điện',
     icon: 'assets/icons/current.jpg',
-    donvi: ['A', 'mA'],
+    donvi: ['A', 'mA', 'uA'],
     daido: [-2, 2],
     dophangiai: 3,
     heso: [
       [1, 0],
-      [1000, 0]
+      [1000, 0],
+      [1000000, 0]
     ],
   )),
   (Cambien(
@@ -150,8 +151,8 @@ List<Cambien> cambiens = [
     id: 'SoundF',
     name: 'Âm thanh',
     icon: 'assets/icons/soundf.jpg',
-    donvi: ['Hz'],
-    daido: [20, 20000],
+    donvi: ['dB'],
+    daido: [0, 130],
     dophangiai: 1,
     heso: [
       [1, 0]
@@ -182,14 +183,41 @@ List<Cambien> cambiens = [
       [0.001, 0]
     ],
   )),
+  (Cambien(
+    id: 'Altitude',
+    name: 'Độ cao',
+    icon: 'assets/icons/altitude.png',
+    donvi: ['m'],
+    daido: [-10, 30],
+    dophangiai: 1,
+    heso: [
+      [1, 0],
+    ],
+  )),
+  (Cambien(
+    id: 'Z Accel',
+    name: 'Gia tốc Z',
+    icon: 'assets/icons/acceleration.png',
+    donvi: ['m/s²'],
+    daido: [-1000, 1000],
+    dophangiai: 1,
+    heso: [
+      [1, 0],
+    ],
+  )),
   (Cambien(id: 'V&A', name: "Cảm biến dòng áp", icon: 'assets/icons/dongap.jpg')),
   (Cambien(id: 'Mlab', name: "Bộ điều khiển đa kênh", icon: 'assets/icons/bdkdakenh.jpg')),
   (Cambien(id: 'BDK', name: "Bộ điều khiển thủy canh", icon: 'assets/icons/bdkdakenh.jpg')),
+  (Cambien(id: 'QD', name: "Quang điện", icon: 'assets/icons/dongap.jpg')),
+  (Cambien(id: 'Alt_Acc', name: "Cảm biến độ cao-gia tốc", icon: 'assets/icons/altitude.png')),
+
 ];
 final Map<String, List<int>> cambienMapping = {
   "V&A": [10, 11],
   "H&T": [1, 0],
   "P&T": [2, 0],
+  "QD": [10, 11],
+  "Alt_Acc": [15, 16],
   // thêm tùy loại
 };
 class MyColors {
@@ -217,6 +245,7 @@ List<String> lession=[
   'Lò sấy nông sản',
   'Lên men sữa chua',
   'Thủy canh tự động',
+  'Tên lửa nước',
 ];
 
 List<String> scanFilter = [
@@ -237,7 +266,11 @@ List<String> scanFilter = [
   'Conductivity',
   'V&A',
   'Mlab',
-  'BDK'
+  'BDK',
+  'QD',
+  'Alt_Acc',
+  'Altitude',
+  'Launch',
 ];
 int selectedBatdau = 1;
 int selectedKetThuc = 1;

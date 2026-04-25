@@ -52,9 +52,9 @@ class _CongWidgetState extends State<CongWidget> {
                     hint: const Text("Chọn cổng"),
                     items: CongWidget.defaultPorts
                         .map((p) => DropdownMenuItem(
-                      value: p,
-                      child: Text(p),
-                    ))
+                              value: p,
+                              child: Text(p),
+                            ))
                         .toList(),
                     onChanged: widget.onChanged,
                   ),
