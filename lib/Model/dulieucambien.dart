@@ -4,17 +4,19 @@ class DulieuCB{
   List<double> giaTri;
   bool datLai;
   bool xoaCambien;
+  String? rawData;
   DulieuCB({
     required this.id,
     required this.tenCambien,
     required this.giaTri,
     required this.datLai,
-    required this.xoaCambien
+    required this.xoaCambien,
+    this.rawData,
 });
 
   @override
   String toString() {
     String formattedValue = giaTri.map((e) => e.toStringAsFixed(2)).join(', ');
-    return ('id: $id, ten: $tenCambien, giatri: [$formattedValue] , length: ${giaTri.length}, datLai: $datLai, xoaCambien: $xoaCambien');
+    return ('id: $id, ten: $tenCambien, giatri: [$formattedValue], rawData: $rawData, datLai: $datLai, xoaCambien: $xoaCambien');
   }
 }

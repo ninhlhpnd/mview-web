@@ -20,6 +20,7 @@ import 'package:mview/widget/kieuhienthi/cacbaistem/lenmensuachua.dart';
 import 'package:mview/widget/kieuhienthi/cacbaistem/nhakinhthongminh.dart';
 import 'package:mview/widget/kieuhienthi/cacbaistem/stemlosaynongsan.dart';
 import 'package:mview/widget/kieuhienthi/cacbaistem/stemtenluanuoc.dart'; // import mới
+import 'package:mview/widget/kieuhienthi/cacbaistem/dieukhienrobot.dart'; // Thêm import mới
 import 'package:mview/widget/manhinhchinh/bocuc1manhinh.dart';
 import 'package:mview/widget/manhinhchinh/bocuc2manhinhdoc.dart';
 import 'package:mview/widget/manhinhchinh/bocuc2manhinhngang.dart';
@@ -444,6 +445,17 @@ class MyWidget extends State<MainWidget> {
 
                   if (_selectedBocuc >= 10 && tcb == "Mlab") {
                     xuLyDuLieuStem(device, dataList);
+                  } else if (tcb == "Car") {
+                    String rawStr = String.fromCharCodes(dataList);
+                    print("🚗 Car Device Data: $rawStr");
+                    _streamController.add(DulieuCB(
+                      id: device.deviceId,
+                      tenCambien: "CAR_DATA",
+                      giaTri: [],
+                      datLai: false,
+                      xoaCambien: false,
+                      rawData: rawStr,
+                    ));
                   } else {
                     if (dataList.isNotEmpty &&
                         dataList[0] == 0x02 &&
@@ -923,6 +935,11 @@ class MyWidget extends State<MainWidget> {
         );
       case 14:
         return StemTenluaNuocScreen(
+          stream: _streamController.stream,
+          tenbaihoc: globals.lession[_selectedBocuc - 10],
+        );
+      case 15:
+        return StemDieuKhienRobot(
           stream: _streamController.stream,
           tenbaihoc: globals.lession[_selectedBocuc - 10],
         );

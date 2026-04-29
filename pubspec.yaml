@@ -106,6 +106,7 @@ flutter:
     - assets/icons/bdkdakenh.jpg
     - assets/icons/acceleration.png
     - assets/icons/altitude.png
+    - assets/icons/car.jpg
 flutter_launcher_icons:
   android: true
   ios: true

@@ -210,6 +210,7 @@ List<Cambien> cambiens = [
   (Cambien(id: 'BDK', name: "Bộ điều khiển thủy canh", icon: 'assets/icons/bdkdakenh.jpg')),
   (Cambien(id: 'QD', name: "Quang điện", icon: 'assets/icons/dongap.jpg')),
   (Cambien(id: 'Alt_Acc', name: "Cảm biến độ cao-gia tốc", icon: 'assets/icons/altitude.png')),
+  (Cambien(id: 'Car', name: "Robot thi đấu", icon: 'assets/icons/car.jpg')),
 
 ];
 final Map<String, List<int>> cambienMapping = {
@@ -235,8 +236,8 @@ class MyColors {
 
 List<SodoCambien> SodoCambienList = [];
 List<SodoCambien> SodoCambienListHistory = [];
-List<String> serviceUuid = ['4a5c0000-0000-0000-0000-5c1e741f1c00', '00004321-0000-1000-8000-00805f9b34fb','4321'];
-List characteristicUuid = ['4a5c0000-0003-0000-0000-5c1e741f1c00', '00004320-0000-1000-8000-00805f9b34fb','4320'];
+List<String> serviceUuid = ['4a5c0000-0000-0000-0000-5c1e741f1c00', '00004321-0000-1000-8000-00805f9b34fb','4321', '0000FFE0-0000-1000-8000-00805F9B34FB'];
+List characteristicUuid = ['4a5c0000-0003-0000-0000-5c1e741f1c00', '00004320-0000-1000-8000-00805f9b34fb','4320', '0000FFE1-0000-1000-8000-00805F9B34FB'];
 int tansolaymau = 1000;
 const List<String> dPins = ['D3', 'D4', 'D5', 'D6'];
 const List<String> sensors = ['A1', 'A2', 'S1', 'S2', 'S3'];
@@ -246,6 +247,7 @@ List<String> lession=[
   'Lên men sữa chua',
   'Thủy canh tự động',
   'Tên lửa nước',
+  'Điều khiển robot',
 ];
 
 List<String> scanFilter = [
@@ -271,6 +273,7 @@ List<String> scanFilter = [
   'Alt_Acc',
   'Altitude',
   'Launch',
+  'Car-',
 ];
 int selectedBatdau = 1;
 int selectedKetThuc = 1;

@@ -278,8 +278,14 @@ class _CustomDialogContentState extends State<CustomDialogContent> {
 
         // Update globals.SodoCambienList same as your original logic:
         int vitri = (deviceObj.name ?? "").indexOf('-');
+        String tencambien = "";
         if (vitri > 0) {
-          String tencambien = deviceObj.name!.substring(0, vitri);
+          tencambien = deviceObj.name!.substring(0, vitri);
+        } else if ((deviceObj.name ?? "").startsWith("Car")) {
+          tencambien = "Car";
+        }
+
+        if (tencambien.isNotEmpty) {
           if (globals.cambienMapping.containsKey(tencambien)) {
             List<int> indices = globals.cambienMapping[tencambien]!;
             List<SodoCambien> data = indices.map((i) {
@@ -585,8 +591,17 @@ class _FoundDevice extends StatelessWidget {
     String? tencambien;
     int index = device.name?.indexOf('-') ?? -1;
     if (index > 0) {
+      String prefix = device.name!.substring(0, index);
       for (var cambien in globals.cambiens) {
-        if (device.name!.substring(0, index) == cambien.id) {
+        if (prefix == cambien.id) {
+          image = cambien.icon;
+          tencambien = cambien.name;
+          break;
+        }
+      }
+    } else if (device.name?.startsWith("Car") ?? false) {
+      for (var cambien in globals.cambiens) {
+        if (cambien.id == "Car") {
           image = cambien.icon;
           tencambien = cambien.name;
           break;

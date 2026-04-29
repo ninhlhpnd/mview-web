@@ -254,6 +254,72 @@ class _LineChartState extends State<LineChart> {
       });
     });
     _centerIndex = 0;
+    
+    // Gọi hàm mô phỏng đồ thị khi mở màn hình
+    // _generateSimulationData();
+  }
+
+  void _generateSimulationData() {
+    // Yêu cầu: đồ thị trục x từ 0-600(s) trục y hiển thị từ 5500-7000.
+    // Tập hợp các điểm cách nhau 1s, trục y bắt đầu từ 6000, tăng dần lên 6500 trong 100s, sau đó đi ngang đến 600s.
+    String simId = "CO2-0045";
+    if (!_sensorData.containsKey(simId)) {
+      _sensorData[simId] = [];
+      _colors[simId] = Colors.blue;
+      if (!_sensorSelectionOrder.contains(simId)) {
+        _sensorSelectionOrder.add(simId);
+      }
+      _cambienInfo[simId] = CambienHienthi(
+        id: simId,
+        name: "CO2-0045",
+        donvi: "",
+        color: Colors.blue,
+      );
+    }
+
+    // Thiết lập giới hạn trục Y
+    _yMinData = 5500.0;
+    _yMaxData = 7000.0;
+    _centerY = (_yMinData + _yMaxData) / 2;
+
+    List<double> simData = [];
+    double samplePeriod = globals.tansolaymau / 1000.0;
+    if (samplePeriod <= 0) samplePeriod = 1.0;
+    
+    // Tính tổng số mẫu cho 600s
+    int totalSamples = (600 / samplePeriod).round();
+    
+    // Sử dụng Random để tạo nhiễu, giúp đồ thị chân thực hơn
+    final random = Random();
+
+    for (int i = 0; i <= totalSamples; i++) {
+      double t = i * samplePeriod; // Thời gian thực (giây)
+      double y;
+      
+      if (t <= 100) {
+        // Từ 0 đến 100s: y tăng dần từ 6000 đến 6500
+        y = 6000 + (t / 100) * 500;
+      } else if (t <= 600) {
+        // Từ 100s đến 600s: y đi ngang (có tăng nhẹ lên 6520)
+        y = 6500 + ((t - 100) / 500) * 20;
+      } else {
+        y = 6520;
+      }
+      
+      // Thêm nhiễu ngẫu nhiên trong khoảng -5 đến +5
+      double noise = (random.nextDouble() * 10) - 5;
+      y += noise;
+      
+      simData.add(y);
+    }
+
+    _sensorData[simId]!.clear();
+    _sensorData[simId]!.addAll(simData);
+
+    // Cập nhật lại khung nhìn để thấy được từ 0-600s
+    _windowSize = totalSamples > 100 ? totalSamples.toDouble() : 100.0;
+    _centerIndex = totalSamples / 2.0;
+    _autoFollow = false; // Tắt auto follow để xem toàn bộ 600s ngay khi mở
   }
 
   @override
@@ -402,6 +468,55 @@ class _LineChartState extends State<LineChart> {
     });
   }
 
+  void _zoomFitAll() {
+    double maxIdx = _getGlobalMaxIndex();
+    if (maxIdx <= 0) {
+      _resetView();
+      return;
+    }
+
+    double minVal = double.infinity;
+    double maxVal = -double.infinity;
+    bool hasData = false;
+
+    for (final list in _sensorData.values) {
+      if (list.isNotEmpty) {
+        hasData = true;
+        for (final v in list) {
+          if (v < minVal) minVal = v;
+          if (v > maxVal) maxVal = v;
+        }
+      }
+    }
+
+    if (!hasData) {
+      _resetView();
+      return;
+    }
+
+    setState(() {
+      _autoFollow = false;
+      _windowSize = max(100.0, maxIdx + 1);
+      _centerIndex = maxIdx / 2;
+
+      // Fit Y axis
+      double dataSpan = maxVal - minVal;
+      if (dataSpan.abs() < 1e-6) dataSpan = 1.0;
+
+      // Thêm khoảng lề 10%
+      double margin = dataSpan * 0.1;
+      double yMin = minVal - margin;
+      double yMax = maxVal + margin;
+
+      _centerY = (yMin + yMax) / 2;
+
+      // zoomY = (phạm vi hiển thị mong muốn) / (phạm vi gốc)
+      double originalSpan = (_yMaxData - _yMinData);
+      if (originalSpan.abs() < 1e-6) originalSpan = 1.0;
+      _zoomY = (yMax - yMin) / originalSpan;
+    });
+  }
+
   // helper: find first unused color from globals list
   Color _findFirstUnusedColor() {
     for (final c in globals.listMamau) {
@@ -505,6 +620,14 @@ class _LineChartState extends State<LineChart> {
                     backgroundColor: Colors.grey[300],
                   ),
                   child: const Icon(Icons.refresh, color: Colors.black),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _zoomFitAll,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey[300],
+                  ),
+                  child: const Icon(Icons.zoom_out_map, color: Colors.black),
                 ),
                 const SizedBox(width: 12),
                 ElevatedButton(
@@ -1067,85 +1190,87 @@ class _FastChartPainter extends CustomPainter {
     canvas.drawLine(Offset(leftPadding, topPadding + innerH),
         Offset(size.width - rightPadding, topPadding + innerH), axisPaint);
 
-    // Xén vùng vẽ đồ thị để các điểm nằm ngoài mép bị ẩn đi thay vì dồn thành đường
-    canvas.save();
-    canvas.clipRect(Rect.fromLTRB(
-        leftPadding, topPadding, size.width - rightPadding, topPadding + innerH));
-
     // for each series draw decimated path
     final visibleStart = max(0, startIndex.floor());
     final visibleEnd = min(_maxDataLength(), endIndex.ceil());
 
     if (visibleStart >= visibleEnd) {
       // No data
-      final tp = TextPainter(
-          text: TextSpan(
-              text: '',
-              style: TextStyle(color: Colors.black54, fontSize: 14)),
-          textDirection: TextDirection.ltr);
-      tp.layout();
-      tp.paint(canvas, Offset(leftPadding + 20, topPadding + 10));
-      canvas.restore(); // Sửa lỗi thiếu restore khi return sớm
       return;
     }
 
     final double pixels = innerW;
     final int maxBins = pixels.ceil();
 
-    // For each series:
+    // Loop through each sensor data series
     int seriesIdx = 0;
     for (final entry in data.entries) {
       final id = entry.key;
       final list = entry.value;
       if (list.isEmpty) continue;
+      
       final color = colors[id] ?? Colors.blue;
+      
+      // --- DRAW LINE (Clipped to chart area) ---
+      canvas.save();
+      canvas.clipRect(Rect.fromLTRB(
+          leftPadding, topPadding, size.width - rightPadding, topPadding + innerH));
+
       final paintLine = Paint()
         ..color = color
         ..strokeWidth = 1.6
         ..style = PaintingStyle.stroke;
-      final paintFill = Paint()..color = color.withOpacity(0.15);
 
-      // Decide whether to decimate: if samples > pixels*2 then decimate
-      final visibleList = <double>[];
       final s = visibleStart;
       final e = visibleEnd;
-      if (e - s <= 0) continue;
       final samples = e - s;
-      final binSize = max(1, (samples / maxBins).ceil());
 
-      if (binSize <= 1) {
-        // direct polyline
+      // Chỉ sử dụng decimation (nén điểm) nếu số lượng điểm quá lớn (ví dụ > 5000 điểm)
+      // để đảm bảo đồ thị luôn sắc nét trên các màn hình nhỏ/chia đôi.
+      final bool useDecimation = samples > 5000 && samples > maxBins * 3;
+
+      if (!useDecimation) {
+        // --- DRAW SHARP POLYLINE ---
         final path = Path();
+        bool first = true;
         for (int i = s; i < e; i++) {
-          final xi = i - startIndex; // position within visible window
-          final x = leftPadding + (xi / samplesOnScreen) * innerW;
-          final yVal = list[i.clamp(0, list.length - 1)];
-          final y = mapY(
-              yVal, innerH);
-          if (i == s)
-            path.moveTo(x, y);
-          else
-            path.lineTo(x, y);
-        }
-        canvas.drawPath(path, paintLine);
-
-        // markers: show every Nth point to avoid too many circles
-        final markerStep =
-            (samples / 400).ceil().clamp(1, 50); // max ~400 markers
-        final markerPaint = Paint()..color = color;
-        for (int i = s; i < e; i += markerStep) {
           final xi = i - startIndex;
           final x = leftPadding + (xi / samplesOnScreen) * innerW;
           final yVal = list[i.clamp(0, list.length - 1)];
-          final y =
-              mapY(yVal, innerH);
-          canvas.drawCircle(Offset(x, y), 2.0, markerPaint);
+          final y = mapY(yVal, innerH);
+          if (first) {
+            path.moveTo(x, y);
+            first = false;
+          } else {
+            path.lineTo(x, y);
+          }
+        }
+        canvas.drawPath(path, paintLine);
+
+        // markers: Chỉ hiện marker nếu không quá dày đặc
+        if (samples < 1000) {
+          final markerStep = (samples / 100).ceil().clamp(1, 20);
+          final markerPaint = Paint()..color = color;
+          for (int i = s; i < e; i += markerStep) {
+            final xi = i - startIndex;
+            final x = leftPadding + (xi / samplesOnScreen) * innerW;
+            final yVal = list[i.clamp(0, list.length - 1)];
+            final y = mapY(yVal, innerH);
+            canvas.drawCircle(Offset(x, y), 1.5, markerPaint);
+          }
         }
       } else {
-        // decimation using min/max per bin
+        // --- DRAW DECIMATED LINE (For very large data sets) ---
+        final binSize = (samples / maxBins).ceil();
+        final paintDecimated = Paint()
+          ..color = color
+          ..strokeWidth = 1.0
+          ..style = PaintingStyle.stroke;
+          
         final path = Path();
-        int binIndex = 0;
-        for (int binStart = s; binStart < e; binStart += binSize, binIndex++) {
+        bool first = true;
+        
+        for (int binStart = s; binStart < e; binStart += binSize) {
           final binEnd = min(binStart + binSize, e);
           double minV = double.infinity, maxV = -double.infinity;
           for (int j = binStart; j < binEnd; j++) {
@@ -1153,34 +1278,44 @@ class _FastChartPainter extends CustomPainter {
             if (val < minV) minV = val;
             if (val > maxV) maxV = val;
           }
+          
           final xi = (binStart - startIndex) + binSize / 2.0;
           final x = leftPadding + (xi / samplesOnScreen) * innerW;
-          final yMin =
-              mapY(minV, innerH);
-          final yMax =
-              mapY(maxV, innerH);
+          final yMin = mapY(minV, innerH);
+          final yMax = mapY(maxV, innerH);
 
-          // draw vertical line representing min..max in that pixel bin
+          // Vẽ dải min-max sắc nét hơn
+          if (first) {
+            path.moveTo(x, yMin);
+            path.lineTo(x, yMax);
+            first = false;
+          } else {
+            path.lineTo(x, yMin);
+            path.lineTo(x, yMax);
+          }
+        }
+        canvas.drawPath(path, paintDecimated);
       }
-    }
+      canvas.restore(); // Restore after line drawing to allow legend drawing outside clip
 
-    // Kết thúc phần xén vùng vẽ đồ thị
-    canvas.restore();
-
-    // legend label (right side)
-    final tp = TextPainter(
+      // --- DRAW LEGEND LABEL (Right side, NOT clipped) ---
+      final labelText = id.split(',').length > 1
+          ? id.split(',').sublist(1).join(',')
+          : id;
+          
+      final tp = TextPainter(
         text: TextSpan(
-            text: id.split(',').length > 1
-                ? id.split(',').sublist(1).join(',')
-                : id,
-            style: TextStyle(color: color, fontSize: 12)),
+          text: labelText,
+          style: TextStyle(color: color, fontSize: 12),
+        ),
         textDirection: TextDirection.ltr,
       );
       tp.layout();
       tp.paint(
-          canvas,
-          Offset(size.width - rightPadding - tp.width - 6,
-              topPadding + 12.0 * seriesIdx));
+        canvas,
+        Offset(size.width - rightPadding - tp.width - 6,
+            topPadding + 12.0 * seriesIdx),
+      );
       seriesIdx++;
     }
     // small axis labels
