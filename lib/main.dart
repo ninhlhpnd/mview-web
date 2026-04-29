@@ -35,6 +35,8 @@ import 'package:flutter/foundation.dart';
 import 'Model/cambien.dart';
 import 'manager/connection_manager.dart';
 import 'widget/dialog/bluetooth_dialog.dart';
+import 'widget/dialog/calibration_dialog.dart';
+
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -295,7 +297,23 @@ class MyWidget extends State<MainWidget> {
     );
   }
 
-  void CongcuButton() {}
+  void CongcuButton() {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          elevation: 10,
+          child: const CalibrationDialog(),
+        );
+      },
+    );
+  }
+
 
   @override
   void initState() {
@@ -1050,10 +1068,11 @@ class _ThanhCongCu extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 FunctionButton(
-                  function: parent.DangPhatTrien,
+                  function: parent.CongcuButton,
                   nameButton: 'Công cụ',
                   iconButton: Icons.build,
                 ),
+
                 const SizedBox(width: 8),
                 PopupButton(parent: parent),
                 const SizedBox(width: 8),
